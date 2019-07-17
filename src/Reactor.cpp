@@ -149,11 +149,11 @@ const static float fuel_crit_vanilla[] = {
 };
 
 const static float moderator_flux_vanilla[] = {
-  0, 2.2, 1.0, 3.6
+  0, 2.2, 1.0, 3.6, 0
 };
 
 const static float moderator_eff_vanilla[] = {
-  0, 1.1, 1.2, 1.0
+  0, 1.1, 1.2, 1.0, 0
 };
 
 static std::map<CoolerType, float> coolerStrengths = coolerStrengths_vanilla;
@@ -970,6 +970,101 @@ void Reactor::_evaluate(FuelType ft) {
   }
 }
 
+std::set<coord_t> Reactor::suggestPrincipledLocations()
+{
+  std::set<coord_t> ret;
+
+  // cells collinear with existing reactor cells
+  for (const auto & c : _reactorCellCache)
+  {
+    for (const auto & o : offsets)
+    {
+      coord_t n = c;
+      while (isInBounds(UNPACK(n)))
+      {
+        n += o;
+        ret.insert(n);
+      }
+    }
+  }
+
+  // cells adjacent to existing coolers
+  for (const auto & c : _coolerCache)
+  {
+    for (const auto & o : offsets)
+    {
+      ret.insert(c + o);
+    }
+  }
+
+  // cells adjacent to moderators that can support heatsinks
+  for (const auto & c : _moderatorCache)
+  {
+    if (_cellValidCache[_XYZV(c)])
+    {
+      for (const auto & o : offsets)
+      {
+        ret.insert(c + o);
+      }
+    }
+  }
+
+  return ret;
+}
+
+std::set<std::tuple<BlockType, CoolerType, ModeratorType, float> >
+Reactor::suggestedBlocksAt(index_t x, index_t y, index_t z)
+{
+  std::set<std::tuple<BlockType, CoolerType, ModeratorType, float> > ret;
+
+  coord_t c(x, y, z);
+
+  // collinear with an existing reactor cell?
+  // for (const auto & o : offsets)
+  // {
+  //   coord_t n = c;
+  //   int i = 0;
+  //   while (isInBounds(UNPACK(n)) && i <= NEUTRON_REACH + 1)
+  //   {
+  //     n += o;
+  //     i++;
+  //     if(blockTypeAt(UNPACK(n)) == BlockType::reactorCell)
+  //     {
+  //       // reactor cells are valid if non adjacent in this direction
+  //       if (i > 1)
+  //         ret.insert(std::make_tuple(BlockType::reactorCell, CoolerType::air, ModeratorType::air, 1));
+  //       // moderators are valid if within neutron reach
+  //       if (i <= NEUTRON_REACH)
+  //       {
+  //         ret.insert(std::make_tuple(BlockType::reactorCell, CoolerType::air, ModeratorType::beryllium, 1));
+  //         ret.insert(std::make_tuple(BlockType::reactorCell, CoolerType::air, ModeratorType::graphite, 1));
+  //         ret.insert(std::make_tuple(BlockType::reactorCell, CoolerType::air, ModeratorType::heavyWater, 1));
+  //       }
+  //     }
+  //   }
+  // }
+
+  // would a cooler be active if placed here?
+  for (int cti = 1; cti < static_cast<int>(CoolerType::COOLER_TYPE_MAX); cti++)
+  {
+    CoolerType ct = static_cast<CoolerType>(cti);
+    if(coolerTypeActiveAt(x, y, z, ct))
+    {
+      ret.insert(std::make_tuple(BlockType::cooler, ct, ModeratorType::air, 1));
+    }
+  }
+
+  // adjacent to an active reactor cell or cooler or conductor or casing?
+  if (activeCoolersAdjacentTo(x, y, z) || reactorCellsAdjacentTo(x, y, z)
+  || _blockTypeAdjacentTo(x, y, z, BlockType::conductor)
+  || _blockTypeAdjacentTo(x, y, z, BlockType::casing))
+  {
+    ret.insert(std::make_tuple(BlockType::conductor, CoolerType::air, ModeratorType::air, 1));
+  }
+
+  return ret;
+}
+
 void Reactor::pruneInactives() {
   for(int x = 0; x < _x; x++)
   {
@@ -985,9 +1080,29 @@ void Reactor::pruneInactives() {
         {
           setCell(x, y, z, BlockType::air, CoolerType::air, ModeratorType::air, false);
         }
-        if(blockTypeAt(x, y, z) == BlockType::reactorCell && _primedStatus[_XYZ(x,y,z)] && reactorCellsObservedByCell(x,y,z) == 0)
+        if(blockTypeAt(x, y, z) == BlockType::reactorCell && _primedStatus[_XYZ(x,y,z)] && !blockActiveAt(x, y, z))
         {
-          setCell(x, y, z, BlockType::air, CoolerType::air, ModeratorType::air, false);
+          bool prune = true;
+          coord_t n(x, y, z);
+          for(const coord_t & o : offsets)
+          {
+            if(!prune)
+            {
+              break;
+            }
+            coord_t p = n + o + o;
+            for(int i = 2; i <= NEUTRON_REACH + 1; i++)
+            {
+              if(blockTypeAt(UNPACK(p)) == BlockType::reactorCell && blockActiveAt(UNPACK(p)))
+              {
+                prune = false;
+                break;
+              }
+              p += o;
+            }
+          }
+          if(prune)
+            setCell(x, y, z, BlockType::air, CoolerType::air, ModeratorType::air, false);
         }
       }
     }

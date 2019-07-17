@@ -112,6 +112,18 @@ enum struct FuelType {
 typedef Eigen::Vector3i coord_t;
 typedef Eigen::Array3i coord_a_t;
 
+namespace std
+{
+  template <> struct less<coord_t> {
+    bool operator()(const coord_t & a, const coord_t & b) const
+    {
+      return std::lexicographical_compare(
+        a.data(),a.data()+a.size(),
+        b.data(),b.data()+b.size());
+    }
+  };
+}
+
 #define NEUTRON_REACH 4
 #define REFLECTOR_EFFICIENCY 0.5
 
@@ -403,6 +415,9 @@ public:
   }
 
   void pruneInactives();
+
+  std::set<coord_t> suggestPrincipledLocations();
+  std::set<std::tuple<BlockType, CoolerType, ModeratorType, float> > suggestedBlocksAt(index_t x, index_t y, index_t z);
 
 private:
 
