@@ -8,7 +8,7 @@ A program to search for viable NuclearCraft fission reactors.
 
 ## Limitations
 
-* The search method is currently pretty bad. I'm working on that.
+* Many.
 
 ## Usage
 
@@ -20,26 +20,19 @@ A program to search for viable NuclearCraft fission reactors.
 
 `coolerRestrictions` (0 - 2):
 
-* 0: any
-* 1: types expected to be available early
+* doesn't matter right now
 
 `strategy` (0 - 2):
 
-* 0: efficiency (effective output per cell) (default)
 * 1: effective output
-* 2: effective reactor cell count (heat adjusted)
+
+(everything else is untested)
 
 ## Strategy
 
-* Uses a pseudo-simulated-annealing strategy.
-* At every step, generates up to 400 "nearby" reactors by changing between 1
-  and 5 cells at a time, and chooses probabilistically weighted by a power of
-  the objective function value (power dependent on step count).
-    * This step is parallelized with OpenMP support.
-* Imposes symmetry in early iterations. Relaxes symmetry restrictions over time.
-* Does its best not to revisit reactor patterns seen in the past (but doesn't
-  know about rotations or reflections).
-* Runs for 20k steps.
+* First spends a few hundred steps proposing a cell + moderator + reflector topology.
+* Then tries to cool that topology.
+* If it balances, optimizes moderators for output.
 
 ## Output
 
