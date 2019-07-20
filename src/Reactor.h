@@ -102,6 +102,12 @@ enum struct FuelType {
   FUEL_TYPE_MAX
 };
 
+enum struct PrincipledSearchMode {
+  computeCooling = 0,
+  optimizeModerators,
+  PRINCIPLED_SEARCH_MODE_TYPE_MAX
+};
+
 #define index_t int_fast8_t
 #define vector_offset_t int_fast32_t
 #define smallcount_t int_fast8_t
@@ -227,10 +233,38 @@ public:
     return _primedCellCache.size();
   }
 
+  inline largecount_t numTrappedCells() {
+    largecount_t ret = 0;
+    for(const auto & c : _reactorCellCache)
+    {
+      if(_blockTypeAdjacentTo(UNPACK(c), BlockType::reactorCell)
+         + _blockTypeAdjacentTo(UNPACK(c), BlockType::moderator)
+         + _blockTypeAdjacentTo(UNPACK(c), BlockType::reflector)
+         + _blockTypeAdjacentTo(UNPACK(c), BlockType::casing) == 6)
+         {
+           ++ret;
+         }
+    }
+    return ret;
+  }
+
   inline bool isSelfSustaining() {
     for(const auto & c : _primedCellCache)
     {
       if(!blockActiveAt(UNPACK(c)))
+      {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  inline bool isBalanced() {
+    if(_largestAssignedClusterId < 0) return false;
+    for(int i = 0; i <= _largestAssignedClusterId; i++)
+    {
+      float dh = _heatingPerCluster[i] - _coolingPerCluster[i];
+      if(dh > 0 || dh < -10)
       {
         return false;
       }
@@ -414,10 +448,15 @@ public:
     return types.size();
   }
 
-  void pruneInactives();
+  void pruneInactives(bool ignoreConductors = false);
 
   std::set<coord_t> suggestPrincipledLocations();
-  std::set<std::tuple<BlockType, CoolerType, ModeratorType, float> > suggestedBlocksAt(index_t x, index_t y, index_t z);
+  std::set<std::tuple<BlockType, CoolerType, ModeratorType, float> > suggestedBlocksAt(index_t x, index_t y, index_t z, PrincipledSearchMode m = PrincipledSearchMode::computeCooling);
+
+  void floodFillWithConductors()
+  {
+    std::replace(_blocks.begin(), _blocks.end(), BlockType::air, BlockType::conductor);
+  }
 
 private:
 

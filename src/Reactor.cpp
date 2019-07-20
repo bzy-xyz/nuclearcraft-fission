@@ -988,9 +988,10 @@ std::set<coord_t> Reactor::suggestPrincipledLocations()
     }
   }
 
-  // cells adjacent to existing coolers
+  // cells that are, or are adjacent to existing coolers
   for (const auto & c : _coolerCache)
   {
+    ret.insert(c);
     for (const auto & o : offsets)
     {
       ret.insert(c + o);
@@ -1013,11 +1014,16 @@ std::set<coord_t> Reactor::suggestPrincipledLocations()
 }
 
 std::set<std::tuple<BlockType, CoolerType, ModeratorType, float> >
-Reactor::suggestedBlocksAt(index_t x, index_t y, index_t z)
+Reactor::suggestedBlocksAt(index_t x, index_t y, index_t z, PrincipledSearchMode m)
 {
   std::set<std::tuple<BlockType, CoolerType, ModeratorType, float> > ret;
 
   coord_t c(x, y, z);
+
+  if(blockTypeAt(x, y, z) == BlockType::reactorCell)
+  {
+    return ret;
+  }
 
   // collinear with an existing reactor cell?
   // for (const auto & o : offsets)
@@ -1044,28 +1050,58 @@ Reactor::suggestedBlocksAt(index_t x, index_t y, index_t z)
   //   }
   // }
 
-  // would a cooler be active if placed here?
-  for (int cti = 1; cti < static_cast<int>(CoolerType::COOLER_TYPE_MAX); cti++)
+  if (m == PrincipledSearchMode::optimizeModerators)
   {
-    CoolerType ct = static_cast<CoolerType>(cti);
-    if(coolerTypeActiveAt(x, y, z, ct))
+    // is this a moderator?
+    if (blockTypeAt(x, y, z) == BlockType::moderator)
     {
-      ret.insert(std::make_tuple(BlockType::cooler, ct, ModeratorType::air, 1));
+      if(moderatorTypeAt(x, y, z) != ModeratorType::graphite)
+        ret.insert(std::make_tuple(BlockType::moderator, CoolerType::air, ModeratorType::graphite, 0.2));
+      if(moderatorTypeAt(x, y, z) != ModeratorType::beryllium)
+        ret.insert(std::make_tuple(BlockType::moderator, CoolerType::air, ModeratorType::beryllium, 0.2));
+      if(moderatorTypeAt(x, y, z) != ModeratorType::heavyWater)
+        ret.insert(std::make_tuple(BlockType::moderator, CoolerType::air, ModeratorType::heavyWater, 0.2));
     }
   }
-
-  // adjacent to an active reactor cell or cooler or conductor or casing?
-  if (activeCoolersAdjacentTo(x, y, z) || reactorCellsAdjacentTo(x, y, z)
-  || _blockTypeAdjacentTo(x, y, z, BlockType::conductor)
-  || _blockTypeAdjacentTo(x, y, z, BlockType::casing))
+  if (m == PrincipledSearchMode::computeCooling)
   {
-    ret.insert(std::make_tuple(BlockType::conductor, CoolerType::air, ModeratorType::air, 1));
+    // would a cooler be active if placed here?
+    for (int cti = 1; cti < static_cast<int>(CoolerType::COOLER_TYPE_MAX); cti++)
+    {
+      CoolerType ct = static_cast<CoolerType>(cti);
+      if(coolerTypeActiveAt(x, y, z, ct) && coolerTypeAt(x, y, z) != ct)
+      {
+        // am I adjacent to an undercooled cluster
+        float dh_pct = 0;
+        coord_t p(x, y, z);
+        for(const auto & o : offsets)
+        {
+          largeindex_t cid = clusterIdAt(UNPACK(p+o));
+          dh_pct = std::max(dh_pct, _heatingPerCluster[cid] / std::max(_coolingPerCluster[cid], (float)1.0));
+        }
+        ret.insert(std::make_tuple(BlockType::cooler, ct, ModeratorType::air, 1 + dh_pct));
+      }
+    }
+
+    // adjacent to an active reactor cell or cooler or conductor or casing?
+    if (activeCoolersAdjacentTo(x, y, z) || reactorCellsAdjacentTo(x, y, z)
+    || _blockTypeAdjacentTo(x, y, z, BlockType::conductor)
+    || _blockTypeAdjacentTo(x, y, z, BlockType::casing))
+    {
+      ret.insert(std::make_tuple(BlockType::conductor, CoolerType::air, ModeratorType::air, 1));
+    }
+
+    // is this a cooler in an overcooled cluster?
+    if (_heatingPerCluster[clusterIdAt(x, y, z)] < _coolingPerCluster[clusterIdAt(x, y, z)])
+    {
+      ret.insert(std::make_tuple(BlockType::air, CoolerType::air, ModeratorType::air, _coolingPerCluster[clusterIdAt(x, y, z)] / std::max(_heatingPerCluster[clusterIdAt(x, y, z)], (float)1)));
+    }
   }
 
   return ret;
 }
 
-void Reactor::pruneInactives() {
+void Reactor::pruneInactives(bool ignoreConductors) {
   for(int x = 0; x < _x; x++)
   {
     for(int y = 0; y < _y; y++)
@@ -1076,7 +1112,7 @@ void Reactor::pruneInactives() {
         {
           setCell(x, y, z, BlockType::air, CoolerType::air, ModeratorType::air, false);
         }
-        if(blockTypeAt(x,y,z) == BlockType::conductor && _conductorIdCache[_XYZ(x,y,z)] == -1)
+        if(!ignoreConductors && blockTypeAt(x,y,z) == BlockType::conductor && _conductorIdCache[_XYZ(x,y,z)] == -1)
         {
           setCell(x, y, z, BlockType::air, CoolerType::air, ModeratorType::air, false);
         }
@@ -1090,12 +1126,21 @@ void Reactor::pruneInactives() {
             {
               break;
             }
-            coord_t p = n + o + o;
-            for(int i = 2; i <= NEUTRON_REACH + 1; i++)
+            coord_t p = n + o;
+            for(int i = 1; i <= NEUTRON_REACH + 1; i++)
             {
-              if(blockTypeAt(UNPACK(p)) == BlockType::reactorCell && blockActiveAt(UNPACK(p)))
+              BlockType b = blockTypeAt(UNPACK(p));
+              if(i == 1 && b == BlockType::reactorCell)
+              {
+                break;
+              }
+              if(i >= 2 && b == BlockType::reactorCell && blockActiveAt(UNPACK(p)))
               {
                 prune = false;
+                break;
+              }
+              if(b != BlockType::reactorCell && b != BlockType::moderator)
+              {
                 break;
               }
               p += o;
