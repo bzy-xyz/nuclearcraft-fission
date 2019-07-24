@@ -1107,7 +1107,7 @@ Reactor::suggestedBlocksAt(index_t x, index_t y, index_t z, PrincipledSearchMode
   //   }
   // }
 
-  if (m == PrincipledSearchMode::optimizeModerators)
+  if (m == PrincipledSearchMode::optimizeModerators || m == PrincipledSearchMode::hybrid)
   {
     // is this a moderator?
     if (blockTypeAt(x, y, z) == BlockType::moderator)
@@ -1120,9 +1120,9 @@ Reactor::suggestedBlocksAt(index_t x, index_t y, index_t z, PrincipledSearchMode
         ret.insert(std::make_tuple(BlockType::moderator, CoolerType::air, ModeratorType::heavyWater, 0.2));
     }
   }
-  if (m == PrincipledSearchMode::computeCooling)
+  if (m == PrincipledSearchMode::computeCooling || m == PrincipledSearchMode::hybrid)
   {
-    if (blockTypeAt(x, y, z) == BlockType::moderator)
+    if (blockTypeAt(x, y, z) == BlockType::moderator && m == PrincipledSearchMode::computeCooling)
     {
       return ret;
     }

@@ -299,6 +299,11 @@ void step_rnd(Reactor & r, int idx, FuelType f, decltype(OBJECTIVE_FN) objective
 
     PrincipledSearchMode m = PrincipledSearchMode::computeCooling;
 
+    if(r.effectivePowerGenerated(f))
+    {
+      m = PrincipledSearchMode::hybrid;
+    }
+
     if(r.isBalanced())
     {
       m = PrincipledSearchMode::optimizeModerators;
@@ -583,7 +588,7 @@ int main(int argc, char ** argv)
       objective_fn(r, optimizeFuel);
     }
 
-    if(i == 4000)
+    if(!(i % 4000))
     {
       r = best_r;
       r.clearInfeasibleClusters();

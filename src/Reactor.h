@@ -105,6 +105,7 @@ enum struct FuelType {
 enum struct PrincipledSearchMode {
   computeCooling = 0,
   optimizeModerators,
+  hybrid,
   PRINCIPLED_SEARCH_MODE_TYPE_MAX
 };
 
@@ -270,7 +271,7 @@ public:
     for(int i = 0; i <= _largestAssignedClusterId; i++)
     {
       float dh = _heatingPerCluster[i] - _coolingPerCluster[i];
-      if(dh > 0 || dh < -10)
+      if(dh > 0 || dh < -1)
       {
         return false;
       }
