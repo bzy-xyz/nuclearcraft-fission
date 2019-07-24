@@ -198,6 +198,10 @@ public:
     return std::count(_blocks.begin(), _blocks.end(), BlockType::conductor);
   }
 
+  inline largecount_t numEmptyBlocks() {
+    return numAirBlocks() + numConductors() + inactiveBlocks();
+  }
+
   inline largecount_t moderatorsAdjacentToReactorCells() {
     largecount_t s = 0;
     for(const auto & c : _reactorCellCache)
@@ -248,6 +252,8 @@ public:
     return ret;
   }
 
+  float averageEfficiencyForFuel(FuelType ft);
+
   inline bool isSelfSustaining() {
     for(const auto & c : _primedCellCache)
     {
@@ -270,6 +276,26 @@ public:
       }
     }
     return true;
+  }
+
+  inline float heatBalance() {
+    if(_largestAssignedClusterId < 0) return 0;
+    float ret = 0;
+    for(int i = 0; i <= _largestAssignedClusterId; i++)
+    {
+      ret += _heatingPerCluster[i] - _coolingPerCluster[i];
+    }
+    return ret;
+  }
+
+  inline float totalCooling() {
+    if(_largestAssignedClusterId < 0) return 0;
+    float ret = 0;
+    for(int i = 0; i <= _largestAssignedClusterId; i++)
+    {
+      ret += _coolingPerCluster[i];
+    }
+    return ret;
   }
 
   inline bool isInBounds(index_t x, index_t y, index_t z)
@@ -415,7 +441,8 @@ public:
 
   inline bool operator<(const Reactor & b) const {
     return _blocks < b._blocks
-        || (_blocks == b._blocks && _coolerTypes < b._coolerTypes);
+        || (_blocks == b._blocks && _coolerTypes < b._coolerTypes)
+        || (_blocks == b._blocks && _coolerTypes == b._coolerTypes && _moderatorTypes < b._moderatorTypes);
   }
 
   inline largecount_t totalCells() const {
@@ -433,6 +460,7 @@ public:
 
   std::string describe();
   std::string clusterStats();
+  std::string jsonExport(FuelType f);
 
   index_t x() { return _x; }
   index_t y() { return _y; }
@@ -457,6 +485,8 @@ public:
   {
     std::replace(_blocks.begin(), _blocks.end(), BlockType::air, BlockType::conductor);
   }
+
+  void clearInfeasibleClusters();
 
 private:
 

@@ -216,40 +216,83 @@ static const char * moderatorTypeShort[] = {
   "??"
 };
 
+static const char * coolerTypeLong[] = {
+  "Air",
+  "Water",
+  "Iron",
+  "Redstone",
+  "Quartz",
+  "Obsidian",
+  "Glowstone",
+  "Lapis",
+  "Gold",
+  "Prismarine",
+  "Purpur",
+  "Diamond",
+  "Emerald",
+  "Copper",
+  "Tin",
+  "Lead",
+  "Boron",
+  "Lithium",
+  "Magnesium",
+  "Manganese",
+  "Aluminum",
+  "Silver",
+  "Helium",
+  "Enderium",
+  "Cryotheum",
+  "Carobbiite",
+  "Fluorite",
+  "Villiaumite",
+  "Arsenic",
+  "TCAlloy",
+  "EndStone",
+  "Slime",
+  "NetherBrick"
+};
+
+static const char * moderatorTypeLong[] = {
+  "Air",
+  "Beryllium",
+  "Graphite",
+  "HeavyWater"
+};
 
 
-#define CREATE_FUEL_STRINGS(__FUEL_NAME) #__FUEL_NAME"_OX", #__FUEL_NAME"_NI", #__FUEL_NAME"_ZA"
+
+#define CREATE_FUEL_STRINGS(__FUEL_NAME) "[OX]" __FUEL_NAME, "[NI]" __FUEL_NAME, "[ZA]" __FUEL_NAME
 
 static std::string fuel_names[] = {
     "air",
     "generic",
-    CREATE_FUEL_STRINGS(TBU),
-    CREATE_FUEL_STRINGS(LEU233),
-    CREATE_FUEL_STRINGS(HEU233),
-    CREATE_FUEL_STRINGS(LEU235),
-    CREATE_FUEL_STRINGS(HEU235),
-    CREATE_FUEL_STRINGS(LEN236),
-    CREATE_FUEL_STRINGS(HEN236),
-    CREATE_FUEL_STRINGS(LEP239),
-    CREATE_FUEL_STRINGS(HEP239),
-    CREATE_FUEL_STRINGS(LEP241),
-    CREATE_FUEL_STRINGS(HEP241),
-    "MOX239", "MNI239", "MZA239",
-    "MOX241", "MNI241", "MZA241",
-    CREATE_FUEL_STRINGS(LEA242),
-    CREATE_FUEL_STRINGS(HEA242),
-    CREATE_FUEL_STRINGS(LECm243),
-    CREATE_FUEL_STRINGS(HECm243),
-    CREATE_FUEL_STRINGS(LECm245),
-    CREATE_FUEL_STRINGS(HECm245),
-    CREATE_FUEL_STRINGS(LECm247),
-    CREATE_FUEL_STRINGS(HECm247),
-    CREATE_FUEL_STRINGS(LEB248),
-    CREATE_FUEL_STRINGS(HEB248),
-    CREATE_FUEL_STRINGS(LECf249),
-    CREATE_FUEL_STRINGS(HECf249),
-    CREATE_FUEL_STRINGS(LECf251),
-    CREATE_FUEL_STRINGS(HECf251),
+    CREATE_FUEL_STRINGS("TBU"),
+    CREATE_FUEL_STRINGS("LEU-233"),
+    CREATE_FUEL_STRINGS("HEU-233"),
+    CREATE_FUEL_STRINGS("LEU-235"),
+    CREATE_FUEL_STRINGS("HEU-235"),
+    CREATE_FUEL_STRINGS("LEN-236"),
+    CREATE_FUEL_STRINGS("HEN-236"),
+    CREATE_FUEL_STRINGS("LEP-239"),
+    CREATE_FUEL_STRINGS("HEP-239"),
+    CREATE_FUEL_STRINGS("LEP241"),
+    CREATE_FUEL_STRINGS("HEP241"),
+    "[OX]MOX-239", "[NI]MNI-239", "[ZA]MZA-239",
+    "[OX]MOX-241", "[NI]MNI-241", "[ZA]MZA-241",
+    CREATE_FUEL_STRINGS("LEA-242"),
+    CREATE_FUEL_STRINGS("HEA-242"),
+    CREATE_FUEL_STRINGS("LECm-243"),
+    CREATE_FUEL_STRINGS("HECm-243"),
+    CREATE_FUEL_STRINGS("LECm-245"),
+    CREATE_FUEL_STRINGS("HECm-245"),
+    CREATE_FUEL_STRINGS("LECm-247"),
+    CREATE_FUEL_STRINGS("HECm-247"),
+    CREATE_FUEL_STRINGS("LEB-248"),
+    CREATE_FUEL_STRINGS("HEB-248"),
+    CREATE_FUEL_STRINGS("LECf-249"),
+    CREATE_FUEL_STRINGS("HECf-249"),
+    CREATE_FUEL_STRINGS("LECf-251"),
+    CREATE_FUEL_STRINGS("HECf-251"),
     "FUEL_TYPE_MAX"
 };
 
@@ -680,7 +723,7 @@ void Reactor::_fuelCellBroadcastModeratorActivations(index_t x, index_t y, index
         {
           break;
         }
-        _setBlockValid(UNPACK(n + p));
+        _setBlockValid(UNPACK(n + o));
         for(const auto & m : moderators_touched)
         {
           _setBlockActive(UNPACK(m));
@@ -822,6 +865,20 @@ bool Reactor::_hasLineOfSightToOutside(index_t x, index_t y, index_t z)
 float Reactor::_fuelCellEfficiencyAt(index_t x, index_t y, index_t z, FuelType ft)
 {
   return _cellPositionalEfficiency[_XYZ(x,y,z)] * fuel_eff[static_cast<int>(ft)] * (1. / (1. + expf(2. * (_cellModeratorFlux[_XYZ(x,y,z)] - 2. * fuel_crit[static_cast<int>(ft)]))));
+}
+
+float Reactor::averageEfficiencyForFuel(FuelType ft)
+{
+  if(!_reactorCellCache.size())
+  {
+    return 0;
+  }
+  float ret = 0;
+  for(const coord_t & c : _reactorCellCache)
+  {
+    ret += _fuelCellEfficiencyAt(UNPACK(c), ft);
+  }
+  return ret / _reactorCellCache.size();
 }
 
 void Reactor::_evaluate(FuelType ft) {
@@ -1020,7 +1077,7 @@ Reactor::suggestedBlocksAt(index_t x, index_t y, index_t z, PrincipledSearchMode
 
   coord_t c(x, y, z);
 
-  if(blockTypeAt(x, y, z) == BlockType::reactorCell)
+  if(blockTypeAt(x, y, z) == BlockType::reactorCell || blockTypeAt(x, y, z) == BlockType::reflector)
   {
     return ret;
   }
@@ -1065,6 +1122,10 @@ Reactor::suggestedBlocksAt(index_t x, index_t y, index_t z, PrincipledSearchMode
   }
   if (m == PrincipledSearchMode::computeCooling)
   {
+    if (blockTypeAt(x, y, z) == BlockType::moderator)
+    {
+      return ret;
+    }
     // would a cooler be active if placed here?
     for (int cti = 1; cti < static_cast<int>(CoolerType::COOLER_TYPE_MAX); cti++)
     {
@@ -1077,7 +1138,7 @@ Reactor::suggestedBlocksAt(index_t x, index_t y, index_t z, PrincipledSearchMode
         for(const auto & o : offsets)
         {
           largeindex_t cid = clusterIdAt(UNPACK(p+o));
-          dh_pct = std::max(dh_pct, _heatingPerCluster[cid] / std::max(_coolingPerCluster[cid], (float)1.0));
+          dh_pct = std::max(dh_pct, std::min(_heatingPerCluster[cid] / std::max(_coolingPerCluster[cid], (float)1.0), (float)2.0));
         }
         ret.insert(std::make_tuple(BlockType::cooler, ct, ModeratorType::air, 1 + dh_pct));
       }
@@ -1154,6 +1215,26 @@ void Reactor::pruneInactives(bool ignoreConductors) {
   }
 }
 
+void Reactor::clearInfeasibleClusters()
+{
+  for(int i = 0; i < _largestAssignedClusterId; i++)
+  {
+    if(!_validClusterIds.count(i) || _coolingPerCluster[i] == 0)
+    {
+      for (int z = 0; z < _z; z++) {
+        for (int y = 0; y < _y; y++) {
+          for (int x = 0; x < _x; x++) {
+            if(clusterIdAt(x, y, z) == i)
+            {
+              setCell(x, y, z, BlockType::air, CoolerType::air, ModeratorType::air, false);
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
 std::string Reactor::describe() {
   std::string r;
   for (int z = 0; z < _z; z++) {
@@ -1205,4 +1286,146 @@ std::string Reactor::clusterStats() {
     r += "\n";
   }
   return r;
+}
+
+std::string Reactor::jsonExport(FuelType f) {
+  _evaluate(f);
+
+  std::string r = "{\"SaveVersion\":{\"Major\":2,\"Minor\":0,\"Build\":18,\"Revision\":0,\"MajorRevision\":0,\"MinorRevision\":0},";
+
+  r += "\"HeatSinks\":{";
+
+  std::map<CoolerType, std::vector<coord_t> > coolersByType;
+  for(const coord_t & c : _coolerCache)
+  {
+    coolersByType[coolerTypeAt(UNPACK(c))].push_back(c);
+  }
+
+  for(const auto & c : coolersByType)
+  {
+    r += "\"";
+    r += coolerTypeLong[static_cast<int>(c.first)];
+    r += "\":[";
+
+    for(const auto & coord : c.second)
+    {
+      r += "\"";
+      r += std::to_string(coord.x()+1);
+      r += ",";
+      r += std::to_string(coord.y()+1);
+      r += ",";
+      r += std::to_string(coord.z()+1);
+      r += "\",\n";
+    }
+
+    if(c.second.size())
+    {
+      r.pop_back();
+      r.pop_back();
+    }
+
+    r += "],\n";
+  }
+  if(coolersByType.size())
+  {
+    r.pop_back();
+    r.pop_back();
+  }
+  r += "},\"Moderators\":{";
+
+  std::map<ModeratorType, std::vector<coord_t> > moderatorsByType;
+  for(const coord_t & c : _moderatorCache)
+  {
+    moderatorsByType[moderatorTypeAt(UNPACK(c))].push_back(c);
+  }
+
+  for(const auto & c : moderatorsByType)
+  {
+    r += "\"";
+    r += moderatorTypeLong[static_cast<int>(c.first)];
+    r += "\":[";
+
+    for(const auto & coord : c.second)
+    {
+      r += "\"";
+      r += std::to_string(coord.x()+1);
+      r += ",";
+      r += std::to_string(coord.y()+1);
+      r += ",";
+      r += std::to_string(coord.z()+1);
+      r += "\",\n";
+    }
+
+    if(c.second.size())
+    {
+      r.pop_back();
+      r.pop_back();
+    }
+
+    r += "],";
+  }
+  if(moderatorsByType.size())
+  {
+    r.pop_back();
+  }
+  r += "},\"Conductors\":[";
+  for(const auto & coord : _conductorCache)
+  {
+    r += "\"";
+    r += std::to_string(coord.x()+1);
+    r += ",";
+    r += std::to_string(coord.y()+1);
+    r += ",";
+    r += std::to_string(coord.z()+1);
+    r += "\",\n";
+  }
+  if(_conductorCache.size())
+  {
+    r.pop_back();
+    r.pop_back();
+  }
+  r += "],\"Reflectors\":[";
+  for(const auto & coord : _reflectorCache)
+  {
+    r += "\"";
+    r += std::to_string(coord.x()+1);
+    r += ",";
+    r += std::to_string(coord.y()+1);
+    r += ",";
+    r += std::to_string(coord.z()+1);
+    r += "\",\n";
+  }
+  if(_reflectorCache.size())
+  {
+    r.pop_back();
+    r.pop_back();
+  }
+  r += "],\"FuelCells\":{\"";
+  r += fuel_names[static_cast<int>(f)];
+  r += ";True\":[";
+  for(const auto & coord : _reactorCellCache)
+  {
+    r += "\"";
+    r += std::to_string(coord.x()+1);
+    r += ",";
+    r += std::to_string(coord.y()+1);
+    r += ",";
+    r += std::to_string(coord.z()+1);
+    r += "\",\n";
+  }
+  if(_reactorCellCache.size())
+  {
+    r.pop_back();
+    r.pop_back();
+  }
+  r += "]},\"InteriorDimensions\":\"";
+  r += std::to_string(_x);
+  r += ",";
+  r += std::to_string(_y);
+  r += ",";
+  r += std::to_string(_z);
+  r += "\"}";
+
+  return r;
+
 }
