@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
+#include <ctime>
 #include <map>
 #include <set>
 #include <deque>
@@ -567,7 +568,7 @@ int main(int argc, char ** argv)
     {
       best_r = r;
     }
-    if(!(i % 200) || (!(i % 100) && objective_fn(r, optimizeFuel) < 10.)) {
+    if(!(i % 50) || (i < switchThresh && !(i % 200))) {
       r = best_r;
       r.pruneInactives(true);
       r.floodFillWithConductors();
@@ -639,7 +640,10 @@ int main(int argc, char ** argv)
   printf("%s\n", best_r.describe().c_str());
   printf("%s\n", best_r.clusterStats().c_str());
 
-  FILE * outJson = fopen("out.json", "w");
+  char outFileName[128];
+  snprintf(outFileName, 128, "out_%d_%d_%d_%d_%.2f.json", time(NULL), best_r.x(), best_r.y(), best_r.z(), best_r.effectivePowerGenerated(f));
+
+  FILE * outJson = fopen(outFileName, "w");
   if(outJson)
   {
     std::string rjson = best_r.jsonExport(optimizeFuel);
