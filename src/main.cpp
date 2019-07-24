@@ -290,7 +290,7 @@ void step_rnd(Reactor & r, int idx, FuelType f, decltype(OBJECTIVE_FN) objective
   std::vector<Reactor> steps;
   std::vector<double> step_weights;
 
-  int switchThresh = 1000; // std::max(r.x() * 20 + r.y() * 20 + r.z() * 20, 50);
+  int switchThresh = std::max(r.x() * 20 + r.y() * 20 + r.z() * 20, 50);
 
   // principled extension
   if(idx > switchThresh)
@@ -319,37 +319,37 @@ void step_rnd(Reactor & r, int idx, FuelType f, decltype(OBJECTIVE_FN) objective
       }
     }
 
-    if(principledActions.size())
-    {
-      #pragma omp parallel for
-      for(int m = 0; m < principledActions.size(); m++)
-      {
-        Reactor r1 = r;
-        float s = 0;
-        auto theAction = principledActions[m];
-
-        coord_t where = std::get<0>(theAction);
-        BlockType bt = std::get<1>(theAction);
-        CoolerType ct = std::get<2>(theAction);
-        ModeratorType mt = std::get<3>(theAction);
-        float _s = std::get<4>(theAction);
-
-        BlockType bt_at = r1.blockTypeAt(UNPACK(where));
-        if(bt_at != BlockType::reactorCell && (bt_at != BlockType::moderator || mt != ModeratorType::air) && bt_at != BlockType::reflector)
-        {
-          r1.setCell(UNPACK(where), bt, ct, mt, bt == BlockType::reactorCell);
-          s += _s;
-        }
-        double score = std::max(pow(objective_fn(r1, f), 1. + (float)(idx % 10000) / 5000), 0.01);
-        #pragma omp critical
-        {
-          if(!tabuSet.count(r1) || m == 0) {
-            steps.push_back(r1);
-            step_weights.push_back(score * s);
-          }
-        }
-      }
-    }
+    // if(principledActions.size())
+    // {
+    //   #pragma omp parallel for
+    //   for(int m = 0; m < principledActions.size(); m++)
+    //   {
+    //     Reactor r1 = r;
+    //     float s = 0;
+    //     auto theAction = principledActions[m];
+    //
+    //     coord_t where = std::get<0>(theAction);
+    //     BlockType bt = std::get<1>(theAction);
+    //     CoolerType ct = std::get<2>(theAction);
+    //     ModeratorType mt = std::get<3>(theAction);
+    //     float _s = std::get<4>(theAction);
+    //
+    //     BlockType bt_at = r1.blockTypeAt(UNPACK(where));
+    //     if(bt_at != BlockType::reactorCell && (bt_at != BlockType::moderator || mt != ModeratorType::air) && bt_at != BlockType::reflector)
+    //     {
+    //       r1.setCell(UNPACK(where), bt, ct, mt, bt == BlockType::reactorCell);
+    //       s += _s;
+    //     }
+    //     double score = std::max(pow(objective_fn(r1, f), 1. + (float)(idx % 10000) / 5000), 0.01);
+    //     #pragma omp critical
+    //     {
+    //       if(!tabuSet.count(r1) || m == 0) {
+    //         steps.push_back(r1);
+    //         step_weights.push_back(score * s);
+    //       }
+    //     }
+    //   }
+    // }
 
     if(principledActions.size())
     {
@@ -552,7 +552,7 @@ int main(int argc, char ** argv)
 
   Reactor best_r = r;
 
-  int switchThresh = 1000; //std::max(r.x() * 20 + r.y() * 20 + r.z() * 20, 50);
+  int switchThresh = std::max(r.x() * 20 + r.y() * 20 + r.z() * 20, 50);
 
   for(int i = 0; i < 20000; i++)
   {
