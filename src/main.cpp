@@ -116,22 +116,22 @@ const std::vector<CoolerType> * shortCoolerTypes = &shortCoolerTypes_passive;
 
 float objective_fn_efficiency(Reactor & r, FuelType optimizeFuel)
 {
-  return (1 + r.effectivePowerGenerated(optimizeFuel) / std::max(r.totalCells(), (int_fast32_t)1) + r.effectivePowerGenerated(optimizeFuel) / 100000.)
+  return (1e-10 + r.effectivePowerGenerated(optimizeFuel) / std::max(r.totalCells(), (int_fast32_t)1) + r.effectivePowerGenerated(optimizeFuel) / 100000.)
           //- (r.heatGenerated(OPTIMIZE_FUEL) > 0 ? r.effectivePowerGenerated(OPTIMIZE_FUEL) : 0))
-          / (0.1 + r.inactiveBlocks() * r.inactiveBlocks());
+          / (0.1 + r.inactiveBlocks() * r.inactiveBlocks() + std::max((r.numCoolerTypes() - 9), 0) + (r.heatGenerated(optimizeFuel) > 0 ? r.heatGenerated(optimizeFuel) / 10000 : 0));
 }
 
 float objective_fn_output(Reactor & r, FuelType optimizeFuel)
 {
-  return (1 + r.effectivePowerGenerated(optimizeFuel))
-          / (0.1 + r.inactiveBlocks() * r.inactiveBlocks());
+  return (1e-10 + r.effectivePowerGenerated(optimizeFuel))
+          / (0.1 + r.inactiveBlocks() * r.inactiveBlocks() + std::max((r.numCoolerTypes() - 9), 0) + (r.heatGenerated(optimizeFuel) > 0 ? r.heatGenerated(optimizeFuel) / 10000 : 0));
 }
 
 float objective_fn_cells(Reactor & r, FuelType optimizeFuel)
 {
-  float mult = r.heatGenerated(optimizeFuel) <= 0 ? 1 : r.heatGenerated(FuelType::air) / (r.heatGenerated(FuelType::air) - r.heatGenerated(optimizeFuel));
-  return (1 + r.totalCells() * mult)
-          / (0.1 + r.inactiveBlocks() * r.inactiveBlocks());
+  float mult = r.heatGenerated(optimizeFuel) <= 0 ? 1 : (r.heatGenerated(FuelType::air) / (r.heatGenerated(FuelType::air) - r.heatGenerated(optimizeFuel)));
+  return (1e-10 + r.totalCells() * mult)
+          / (1 + r.inactiveBlocks() * r.inactiveBlocks()); // + (r.heatGenerated(optimizeFuel) <= 0 ? 0 : (r.heatGenerated(optimizeFuel)) / 50000));
 }
 
 #define OBJECTIVE_FN objective_fn_efficiency
@@ -344,7 +344,7 @@ int main(int argc, char ** argv)
     {
       best_r = r;
     }
-    if(!(i % 1000) || (!(i % 50) && objective_fn(r, optimizeFuel) < 10.)) r = best_r;
+    if(!(i % 1000) || (!(i % 250) && objective_fn(r, optimizeFuel) < 1.)) r = best_r;
 
     if(got_sigint) break;
   }

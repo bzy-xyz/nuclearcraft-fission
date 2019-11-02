@@ -214,6 +214,11 @@ public:
     return std::count(_blocks.begin(), _blocks.end(), BlockType::reactorCell);
   }
 
+  inline smallcount_t numCoolerTypes() const {
+    std::set<CoolerType> types(_coolerTypes.begin(), _coolerTypes.end());
+    return types.size();
+  }
+
   std::string describe();
 
   friend struct std::hash<Reactor>;

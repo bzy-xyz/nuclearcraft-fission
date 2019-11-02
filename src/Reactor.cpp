@@ -245,7 +245,7 @@ bool Reactor::coolerTypeActiveAt(index_t x, index_t y, index_t z, CoolerType ct)
       return activeCoolersAdjacentTo(x, y, z, CoolerType::water)
           && activeCoolersAdjacentTo(x, y, z, CoolerType::quartz);
     case CoolerType::liquidHelium:
-      return activeCoolersAdjacentTo(x, y, z, CoolerType::redstone)
+      return activeCoolersAdjacentTo(x, y, z, CoolerType::redstone) == 1
           && reactorCasingsAdjacentTo(x, y, z);
     case CoolerType::enderium:
       return reactorCasingsAdjacentTo(x, y, z) == 3;
@@ -514,9 +514,9 @@ void Reactor::_evaluate(FuelType ft) {
     }
 
     _powerGeneratedCache[FuelType::air] = 0;
-    _powerGeneratedCache[FuelType::generic] = genericPower;
+    _powerGeneratedCache[FuelType::generic] = genericPower * fuel_power[static_cast<int>(FuelType::generic)];
     _heatGeneratedCache[FuelType::air] = totalCooling;
-    _heatGeneratedCache[FuelType::generic] = genericHeat;
+    _heatGeneratedCache[FuelType::generic] = genericHeat * fuel_heat[static_cast<int>(FuelType::generic)];
 
   }
 
