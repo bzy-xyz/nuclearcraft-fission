@@ -1,0 +1,28 @@
+CC = `which x86_64-w64-mingw32-g++`
+
+CCFLAGS = -Wall -g --std=c++17 -fopenmp -D_GLIBCXX_PARALLEL -O3
+LDFLAGS = -lm -static -static-libgcc -static-libstdc++
+
+.PHONY: all clean
+
+BIN = search.exe
+SOURCES = $(wildcard src/*.cpp)
+OBJECTS = $(SOURCES:%.cpp=%.obj)
+
+DEPS = $(OBJECTS:%.obj=%.d)
+
+all: $(BIN)
+
+clean:
+	-rm bin/$(BIN) $(OBJECTS) $(DEPS)
+
+$(BIN) : bin/$(BIN)
+
+bin/$(BIN): $(OBJECTS)
+	mkdir -p $(@D)
+	$(CC) $(CCFLAGS) $^ -o $@ $(LDFLAGS)
+
+-include $(DEPS)
+
+%.obj: %.cpp
+	$(CC) $(CCFLAGS) -MMD -c $< -o $@

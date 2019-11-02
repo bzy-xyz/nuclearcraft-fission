@@ -8,7 +8,8 @@ A program to search for viable NuclearCraft fission reactors.
 
 ## Limitations
 
-* Uses Enigmatica 2's cooler strengths config. Stock strengths are different!
+* Uses the stock cooling configuration. Your modpack may be different! Change
+  values in `Reactor.cpp` to match your modpack.
 * Supports only one type of active cooling at a time; will yield incorrect
   results if you attempt to mix them.
 
