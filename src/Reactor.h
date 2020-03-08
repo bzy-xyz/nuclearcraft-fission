@@ -29,10 +29,13 @@ enum struct CoolerType {
   redstone,
   quartz,
   obsidian,
+  netherbrick,
   glowstone,
   lapis,
   gold,
   prismarine,
+  slime,
+  endstone,
   purpur,
   diamond,
   emerald,
@@ -45,17 +48,14 @@ enum struct CoolerType {
   manganese,
   aluminum,
   silver,
+  fluorite,
+  villiaumite,
+  carobbite,
+  arsenic,
+  nitrogen,
   helium,
   enderium,
   cryotheum,
-  carobbite,
-  fluorite,
-  villiaumite,
-  arsenic,
-  tcalloy,
-  endstone,
-  slime,
-  netherbrick,
   COOLER_TYPE_MAX
 };
 
@@ -66,6 +66,22 @@ enum struct ModeratorType {
   heavyWater,
   MODERATOR_TYPE_MAX
 };
+
+enum struct NeutronSourceType {
+  unprimed = 0,
+  ra_be,
+  po_be,
+  cf_252,
+  NEUTRON_SOURCE_TYPE_MAX
+};
+
+enum struct ReflectorType {
+  air = 0,
+  beryllium_carbon,
+  lead_steel,
+  REFLECTOR_TYPE_MAX
+};
+
 
 #define CREATE_FUELS(__FUEL_NAME) __FUEL_NAME##_OX, __FUEL_NAME##_NI, __FUEL_NAME##_ZA
 
@@ -133,6 +149,10 @@ namespace std
 
 #define NEUTRON_REACH 4
 #define REFLECTOR_EFFICIENCY 0.5
+
+#define COOLING_LENIENCY 10
+#define EMPTY_REACTOR_PENALTY_MAX_MULT 0.5
+#define EMPTY_REACTOR_PENALTY_THRESH 0.75
 
 #define UNPACK(vec) (vec).x(), (vec).y(), (vec).z()
 
@@ -216,7 +236,7 @@ public:
     largecount_t s = 0;
     for(const auto & c : _reactorCellCache)
     {
-      if(_primedStatus[_XYZV(c)])
+      if(_primedStatus[_XYZV(c)] != NeutronSourceType::unprimed)
         s += _blockTypeAdjacentTo(UNPACK(c), BlockType::moderator);
     }
     return s;
@@ -255,6 +275,19 @@ public:
 
   float averageEfficiencyForFuel(FuelType ft);
 
+  inline float emptyReactorInefficiencyFactor() {
+    largecount_t numUsefulBlocks = _x * _y * _z - _inactiveBlocks - numAirBlocks() - numConductors();
+    float usefulBlockProportion = (float)numUsefulBlocks / (_x * _y * _z);
+    if(usefulBlockProportion <= EMPTY_REACTOR_PENALTY_THRESH)
+    {
+      return EMPTY_REACTOR_PENALTY_MAX_MULT + (1.0 - EMPTY_REACTOR_PENALTY_MAX_MULT) * sin(usefulBlockProportion * M_PI / (2 * EMPTY_REACTOR_PENALTY_THRESH));
+    }
+    else
+    {
+      return 1;
+    }
+  }
+
   inline bool isSelfSustaining() {
     for(const auto & c : _primedCellCache)
     {
@@ -267,6 +300,9 @@ public:
   }
 
   inline bool isBalanced() {
+    largecount_t numUsefulBlocks = _x * _y * _z - _inactiveBlocks - numAirBlocks() - numConductors();
+    float usefulBlockProportion = (float)numUsefulBlocks / (_x * _y * _z);
+    if(usefulBlockProportion <= EMPTY_REACTOR_PENALTY_THRESH) return false;
     if(_largestAssignedClusterId < 0) return false;
     for(int i = 0; i <= _largestAssignedClusterId; i++)
     {
@@ -289,6 +325,16 @@ public:
     return ret;
   }
 
+  inline float totalHeating() {
+    if(_largestAssignedClusterId < 0) return 0;
+    float ret = 0;
+    for(int i = 0; i <= _largestAssignedClusterId; i++)
+    {
+      ret += _heatingPerCluster[i];
+    }
+    return ret;
+  }
+
   inline float totalCooling() {
     if(_largestAssignedClusterId < 0) return 0;
     float ret = 0;
@@ -304,7 +350,12 @@ public:
     return !(x < 0 || y < 0 || z < 0 || x >= _x || y >= _y || z >= _z);
   }
 
-  inline void setCell(index_t x, index_t y, index_t z, BlockType bt, CoolerType ct, ModeratorType mt, bool primed) {
+  inline float centerDist(index_t x, index_t y, index_t z)
+  {
+    return sqrt((x - _x/2) * (x - _x/2) + (y - _y/2) * (y - _y/2) + (z - _z/2) * (z - _z/2));
+  }
+
+  inline void setCell(index_t x, index_t y, index_t z, BlockType bt, CoolerType ct, ModeratorType mt, NeutronSourceType primed, ReflectorType rt) {
     if (!isInBounds(x, y, z)) {
       return;
     }
@@ -313,7 +364,8 @@ public:
     _blocks[_XYZ(x, y, z)] = bt;
     _coolerTypes[_XYZ(x, y, z)] = bt == BlockType::cooler ? ct : CoolerType::air;
     _moderatorTypes[_XYZ(x, y, z)] = bt == BlockType::moderator ? mt : ModeratorType::air;
-    _primedStatus[_XYZ(x, y, z)] = bt == BlockType::reactorCell ? primed : false;
+    _primedStatus[_XYZ(x, y, z)] = bt == BlockType::reactorCell ? primed : NeutronSourceType::unprimed;
+    _reflectorTypes[_XYZ(x, y, z)] = bt == BlockType::reflector ? rt : ReflectorType::air;
   }
 
 
@@ -336,6 +388,20 @@ public:
       return ModeratorType::air;
     }
     return _moderatorTypes[x * (_y * _z) + y * (_z) + z];
+  }
+
+  inline NeutronSourceType neutronSourceTypeAt(index_t x, index_t y, index_t z) {
+    if (!isInBounds(x, y, z)) {
+      return NeutronSourceType::unprimed;
+    }
+    return _primedStatus[x * (_y * _z) + y * (_z) + z];
+  }
+
+  inline ReflectorType reflectorTypeAt(index_t x, index_t y, index_t z) {
+    if (!isInBounds(x, y, z)) {
+      return ReflectorType::air;
+    }
+    return _reflectorTypes[x * (_y * _z) + y * (_z) + z];
   }
 
   inline BlockType blockTypeAt(coord_t pos) {
@@ -467,6 +533,8 @@ public:
   index_t y() { return _y; }
   index_t z() { return _z; }
 
+  largecount_t volume() { return _x * _y * _z; }
+
   smallcount_t numCoolerTypes() const {
     std::set<CoolerType> types;
     for (auto && i : _coolerTypes) {
@@ -480,7 +548,7 @@ public:
   void pruneInactives(bool ignoreConductors = false);
 
   std::set<coord_t> suggestPrincipledLocations();
-  std::set<std::tuple<BlockType, CoolerType, ModeratorType, float> > suggestedBlocksAt(index_t x, index_t y, index_t z, PrincipledSearchMode m = PrincipledSearchMode::computeCooling);
+  std::set<std::tuple<BlockType, CoolerType, ModeratorType, NeutronSourceType, ReflectorType, float> > suggestedBlocksAt(index_t x, index_t y, index_t z, PrincipledSearchMode m = PrincipledSearchMode::computeCooling);
 
   void floodFillWithConductors()
   {
@@ -500,7 +568,8 @@ private:
   std::vector<BlockType> _blocks;
   std::vector<CoolerType> _coolerTypes;
   std::vector<ModeratorType> _moderatorTypes;
-  std::vector<int> _primedStatus;
+  std::vector<NeutronSourceType> _primedStatus;
+  std::vector<ReflectorType> _reflectorTypes;
 
   std::map<FuelType, float> _powerGeneratedCache;
   std::map<FuelType, float> _dutyCycleCache;
@@ -518,7 +587,7 @@ private:
   std::set<largeindex_t> _validConductorIds;
 
   std::vector<float> _cellPositionalEfficiency;
-  std::vector<float> _cellModeratorFlux;
+  std::vector<int> _cellModeratorFlux;
 
   std::vector<coord_t> _unlabeledReactorCellCache;
 

@@ -18,150 +18,165 @@
 
 static std::map<CoolerType, float> coolerStrengths_vanilla = {
   {CoolerType::air, 0},
-  {CoolerType::water, 50},
-  {CoolerType::iron, 55},
+  {CoolerType::water, 55},
+  {CoolerType::iron, 50},
   {CoolerType::redstone, 85},
   {CoolerType::quartz, 75},
   {CoolerType::obsidian, 70},
-  {CoolerType::glowstone, 115},
+  {CoolerType::netherbrick, 105},
+  {CoolerType::glowstone, 100},
   {CoolerType::lapis, 95},
-  {CoolerType::gold, 100},
-  {CoolerType::prismarine, 110},
+  {CoolerType::gold, 110},
+  {CoolerType::prismarine, 115},
+  {CoolerType::slime, 135},
+  {CoolerType::endstone, 65},
   {CoolerType::purpur, 90},
-  {CoolerType::diamond, 180},
+  {CoolerType::diamond, 195},
   {CoolerType::emerald, 190},
   {CoolerType::copper, 80},
   {CoolerType::tin, 120},
-  {CoolerType::lead, 65},
+  {CoolerType::lead, 60},
   {CoolerType::boron, 165},
   {CoolerType::lithium, 130},
-  {CoolerType::magnesium, 135},
-  {CoolerType::manganese, 140},
-  {CoolerType::aluminum, 175},
+  {CoolerType::magnesium, 125},
+  {CoolerType::manganese, 145},
+  {CoolerType::aluminum, 185},
   {CoolerType::silver, 170},
-  {CoolerType::helium, 195},
-  {CoolerType::enderium, 185},
-  {CoolerType::cryotheum, 200},
-  {CoolerType::carobbite, 160},
-  {CoolerType::fluorite, 150},
-  {CoolerType::villiaumite, 155},
-  {CoolerType::arsenic, 145},
-  {CoolerType::tcalloy, 205},
-  {CoolerType::endstone, 60},
-  {CoolerType::slime, 125},
-  {CoolerType::netherbrick, 105}
+  {CoolerType::fluorite, 175},
+  {CoolerType::villiaumite, 160},
+  {CoolerType::carobbite, 150},
+  {CoolerType::arsenic, 140},
+  {CoolerType::nitrogen, 180},
+  {CoolerType::helium, 200},
+  {CoolerType::enderium, 155},
+  {CoolerType::cryotheum, 205},
 };
 
 const static float fuel_eff_vanilla[] = {
   0, 1,
-  1,  1,  1,
-  1.1, 1.1, 1.1,
-  1.1, 1.1, 1.1,
-  1, 1, 1,
-  1, 1, 1,
-  1.1, 1.1, 1.1,
-  1.1, 1.1, 1.1,
-  1.2, 1.2, 1.2,
-  1.2, 1.2, 1.2,
-  1.25, 1.25, 1.25,
-  1.25, 1.25, 1.25,
-  1.05, 1.05, 1.05,
-  1.15, 1.15, 1.15,
-  1.35, 1.35, 1.35,
-  1.35, 1.35, 1.35,
-  1.45, 1.45, 1.45,
-  1.45, 1.45, 1.45,
-  1.5, 1.5, 1.5,
-  1.5, 1.5, 1.5,
-  1.55, 1.55, 1.55,
-  1.55, 1.55, 1.55,
-  1.65, 1.65, 1.65,
-  1.65, 1.65, 1.65,
-  1.75, 1.75, 1.75,
-  1.75, 1.75, 1.75,
-  1.8, 1.8, 1.8,
-  1.8, 1.8, 1.8,
+  1,  1,  1.05,
+  1.1, 1.1, 1.15,
+  1.1, 1.1, 1.15,
+  1, 1, 1.05,
+  1, 1, 1.05,
+  1.1, 1.1, 1.15,
+  1.1, 1.1, 1.15,
+  1.2, 1.2, 1.25,
+  1.2, 1.2, 1.25,
+  1.25, 1.25, 1.3,
+  1.25, 1.25, 1.3,
+  1.05, 1.05, 1.1,
+  1.15, 1.15, 1.2,
+  1.35, 1.35, 1.4,
+  1.35, 1.35, 1.4,
+  1.45, 1.45, 1.5,
+  1.45, 1.45, 1.5,
+  1.5, 1.5, 1.55,
+  1.5, 1.5, 1.55,
+  1.55, 1.55, 1.6,
+  1.55, 1.55, 1.6,
+  1.65, 1.65, 1.7,
+  1.65, 1.65, 1.7,
+  1.75, 1.75, 1.8,
+  1.75, 1.75, 1.8,
+  1.8, 1.8, 1.85,
+  1.8, 1.8, 1.85,
   0
 };
 
 const static float fuel_heat_vanilla[] = {
   0, 1,
-  40,	32,	48,
-  144,	115,	173,
-  432,	345,	519,
-  120,	96,	144,
-  360,	288,	432,
-  90,	72,	108,
-  270,	216,	324,
-  105,	84,	126,
-  315,	252,	378,
-  165,	132,	198,
-  495,	396,	594,
-  112,	90,	134,
-  142,	114,	170,
-  192,	154,	230,
-  576,	462,	690,
-  210,	168,	252,
-  630,	504,	756,
-  162,	130,	194,
-  486,	390,	582,
-  138,	110,	166,
-  414,	330,	498,
-  135,	108,	162,
-  405,	324,	486,
-  216,	173,	259,
-  648,	519,	777,
-  225,	180,	270,
-  675,	540,	810,
+  40,	32,	50,
+  216,	172,	270,
+  648,	516,	810,
+  120,	96,	150,
+  360,	288,	450,
+  292,	234,	366,
+  876,	702,	1098,
+  126,	100,	158,
+  378,	300,	474,
+  182,	146,	228,
+  546,	438,	684,
+  132,	106,	166,
+  192,	154,	240,
+  390,	312,	488,
+  1170,	936,	1464,
+  384,	308,	480,
+  1152,	924,	1440,
+  238,	190,	298,
+  714,	570,	894,
+  268,	214,	336,
+  804,	642,	1008,
+  266,	212,	332,
+  798,	636,	996,
+  540,	432,	676,
+  1620,	1296,	2028,
+  288,	230,	360,
+  864,	690,	1080,
   0
 };
 
-const static float fuel_crit_vanilla[] = {
+const static int fuel_crit_vanilla[] = {
   0, 1,
-  17.6,	22,	15,
-  7.8,	9.8,	6.6,
-  3.9,	4.9,	3.3,
-  8.5,	10.6,	7.2,
-  4.2,	5.3,	3.6,
-  9.4,	11.8,	8,
-  4.7,	5.9,	4,
-  8.9,	11.1,	7.6,
-  4.4,	5.5,	3.8,
-  7.3,	9.1,	6.2,
-  3.6,	4.5,	3.1,
-  8.7,	10.9,	7.4,
-  7.9,	9.9,	6.7,
-  6.5,	8.1,	5.5,
-  3.2,	4.0,	2.7,
-  6.2,	7.8,	5.3,
-  3.1,	3.9,	2.6,
-  7.4,	9.3,	6.3,
-  3.7,	4.6,	3.1,
-  8.0,	10,	6.8,
-  4.0,	5,	3.4,
-  8.1,	10.1,	6.9,
-  4.0,	5,	3.4,
-  6.1,	7.6,	5.2,
-  3.0,	3.8,	2.6,
-  5.8,	7.3,	4.9,
-  2.9,	3.6,	2.5,
+  234,	293,	199,
+  78,	98,	66,
+  39,	49,	33,
+  102,	128,	87,
+  51,	64,	43,
+  70,	88,	60,
+  35,	44,	30,
+  99,	124,	84,
+  49,	62,	42,
+  84,	105,	71,
+  42,	52,	35,
+  94,	118,	80,
+  80,	100,	68,
+  65,	81,	55,
+  32,	40,	27,
+  66,	83,	56,
+  33,	41,	28,
+  75,	94,	64,
+  37,	47,	32,
+  72,	90,	61,
+  36,	45,	30,
+  73,	91,	62,
+  36, 45,	31,
+  60,	75,	51,
+  30,	37,	25,
+  71,	89,	60,
+  35,	44,	30,
   0
 };
 
-const static float moderator_flux_vanilla[] = {
-  0, 2.2, 1.0, 3.6, 0
+const static int moderator_flux_vanilla[] = {
+  0, 22, 10, 36, 0
 };
 
 const static float moderator_eff_vanilla[] = {
-  0, 1.1, 1.2, 1.0, 0
+  0, 1.05, 1.1, 1.0, 0
+};
+
+const static float neutron_source_eff_vanilla[] = {
+  0, 0.9, 0.95, 1.0, 0
+};
+
+const static float reflector_refl_vanilla[] = {
+  0, 1.0, 0.5, 0
+};
+
+const static float reflector_eff_vanilla[] = {
+  0, 0.5, 0.25, 0
 };
 
 static std::map<CoolerType, float> coolerStrengths = coolerStrengths_vanilla;
 const static float * fuel_eff = fuel_eff_vanilla;
 const static float * fuel_heat = fuel_heat_vanilla;
-const static float * fuel_crit = fuel_crit_vanilla;
-const static float * moderator_flux = moderator_flux_vanilla;
+const static int * fuel_crit = fuel_crit_vanilla;
+const static int * moderator_flux = moderator_flux_vanilla;
 const static float * moderator_eff = moderator_eff_vanilla;
+const static float * neutron_source_eff = neutron_source_eff_vanilla;
+const static float * reflector_refl = reflector_refl_vanilla;
+const static float * reflector_eff = reflector_eff_vanilla;
 
 static const char * blockTypeShort[] = {
   "_",
@@ -179,10 +194,13 @@ static const char * coolerTypeShort[] = {
   "RE",
   "QU",
   "OB",
+  "NB",
   "GL",
   "LA",
   "AU",
   "PR",
+  "SL",
+  "ES",
   "PU",
   "DI",
   "EM",
@@ -195,17 +213,14 @@ static const char * coolerTypeShort[] = {
   "MN",
   "AL",
   "AG",
+  "FL",
+  "VI",
+  "CA",
+  "AS",
+  "LN",
   "HE",
   "EN",
   "CR",
-  "CA",
-  "FL",
-  "VI",
-  "AS",
-  "TC",
-  "ES",
-  "SL",
-  "NB",
   "??"
 };
 static const char * moderatorTypeShort[] = {
@@ -223,10 +238,13 @@ static const char * coolerTypeLong[] = {
   "Redstone",
   "Quartz",
   "Obsidian",
+  "NetherBrick",
   "Glowstone",
   "Lapis",
   "Gold",
   "Prismarine",
+  "Slime",
+  "EndStone",
   "Purpur",
   "Diamond",
   "Emerald",
@@ -239,17 +257,14 @@ static const char * coolerTypeLong[] = {
   "Manganese",
   "Aluminum",
   "Silver",
+  "Fluorite",
+  "Villiaumite",
+  "Carobbiite",
+  "Arsenic",
+  "Nitrogen",
   "Helium",
   "Enderium",
   "Cryotheum",
-  "Carobbiite",
-  "Fluorite",
-  "Villiaumite",
-  "Arsenic",
-  "TCAlloy",
-  "EndStone",
-  "Slime",
-  "NetherBrick"
 };
 
 static const char * moderatorTypeLong[] = {
@@ -259,7 +274,31 @@ static const char * moderatorTypeLong[] = {
   "HeavyWater"
 };
 
+static const char * neutronSourceTypeShort[] = {
+  "_",
+  "R",
+  "P",
+  "C",
+};
 
+static const char * neutronSourceTypeLong[] = {
+  "None",
+  "Ra-Be",
+  "Po-Be",
+  "Cf-252",
+};
+
+static const char * reflectorTypeShort[] = {
+  "__",
+  "BC",
+  "LS",
+};
+
+static const char * reflectorTypeLong[] = {
+  "Air",
+  "Beryllium-Carbon",
+  "Lead-Steel",
+};
 
 #define CREATE_FUEL_STRINGS(__FUEL_NAME) "[OX]" __FUEL_NAME, "[NI]" __FUEL_NAME, "[ZA]" __FUEL_NAME
 
@@ -304,7 +343,8 @@ Reactor::Reactor(index_t x, index_t y, index_t z) {
   _blocks = std::vector<BlockType>(x * y * z, BlockType::air);
   _coolerTypes = std::vector<CoolerType>(x * y * z, CoolerType::air);
   _moderatorTypes = std::vector<ModeratorType>(x * y * z, ModeratorType::air);
-  _primedStatus = std::vector<int>(x * y * z, 0);
+  _primedStatus = std::vector<NeutronSourceType>(x * y * z, NeutronSourceType::unprimed);
+  _reflectorTypes = std::vector<ReflectorType>(x * y * z, ReflectorType::air);
 
   _x = x;
   _y = y;
@@ -372,7 +412,7 @@ bool Reactor::coolerTypeActiveAt(index_t x, index_t y, index_t z, CoolerType ct)
     case CoolerType::tin:
       return hasAxialCoolers(x, y, z, CoolerType::lapis);
     case CoolerType::magnesium:
-      return validModeratorsAdjacentTo(x, y, z) && reactorCasingsAdjacentTo(x, y, z);
+      return validModeratorsAdjacentTo(x, y, z) == 1 && reactorCasingsAdjacentTo(x, y, z);
     case CoolerType::boron:
       return activeCoolersAdjacentTo(x, y, z, CoolerType::quartz) == 1 && reactorCasingsAdjacentTo(x, y, z);
     case CoolerType::prismarine:
@@ -382,13 +422,13 @@ bool Reactor::coolerTypeActiveAt(index_t x, index_t y, index_t z, CoolerType ct)
     case CoolerType::lead:
       return activeCoolersAdjacentTo(x, y, z, CoolerType::iron);
     case CoolerType::aluminum:
-      return activeCoolersAdjacentTo(x, y, z, CoolerType::quartz) && activeCoolersAdjacentTo(x, y, z, CoolerType::tin);
+      return activeCoolersAdjacentTo(x, y, z, CoolerType::quartz) && activeCoolersAdjacentTo(x, y, z, CoolerType::lapis);
     case CoolerType::lithium:
-      return activeCoolersAdjacentTo(x, y, z, CoolerType::lead) == 1 && reactorCasingsAdjacentTo(x, y, z);
+      return hasAxialCoolers(x, y, z, CoolerType::lead) && reactorCasingsAdjacentTo(x, y, z);
     case CoolerType::manganese:
       return reactorCellsAdjacentTo(x, y, z) >= 2;
     case CoolerType::silver:
-      return activeCoolersAdjacentTo(x, y, z, CoolerType::glowstone) && activeCoolersAdjacentTo(x, y, z, CoolerType::lapis);
+      return activeCoolersAdjacentTo(x, y, z, CoolerType::glowstone) >= 2 && activeCoolersAdjacentTo(x, y, z, CoolerType::tin);
     case CoolerType::purpur:
       return activeCoolersAdjacentTo(x, y, z, CoolerType::iron) == 1 && activeCoolersAdjacentTo(x, y, z, CoolerType::endstone);
     case CoolerType::arsenic:
@@ -396,18 +436,17 @@ bool Reactor::coolerTypeActiveAt(index_t x, index_t y, index_t z, CoolerType ct)
     case CoolerType::carobbite:
       return activeCoolersAdjacentTo(x, y, z, CoolerType::copper) && activeCoolersAdjacentTo(x, y, z, CoolerType::endstone);
     case CoolerType::villiaumite:
-      return activeReflectorsAdjacentTo(x, y, z) && activeCoolersAdjacentTo(x, y, z, CoolerType::redstone);
+      return activeCoolersAdjacentTo(x, y, z, CoolerType::endstone) && activeCoolersAdjacentTo(x, y, z, CoolerType::redstone);
     case CoolerType::slime:
-      return activeReflectorsAdjacentTo(x, y, z) && activeCoolersAdjacentTo(x, y, z, CoolerType::water) == 1;
+      return activeCoolersAdjacentTo(x, y, z, CoolerType::water) == 1 && activeCoolersAdjacentTo(x, y, z, CoolerType::lead) >= 2;
     case CoolerType::fluorite:
       return activeCoolersAdjacentTo(x, y, z, CoolerType::gold) && activeCoolersAdjacentTo(x, y, z, CoolerType::prismarine);
-    case CoolerType::tcalloy:
-      // TODO hasvertex
-      return false;
     case CoolerType::netherbrick:
       return activeCoolersAdjacentTo(x, y, z, CoolerType::obsidian);
     case CoolerType::endstone:
       return activeReflectorsAdjacentTo(x, y, z);
+    case CoolerType::nitrogen:
+      return activeCoolersAdjacentTo(x, y, z, CoolerType::copper) >= 2 && activeCoolersAdjacentTo(x, y, z, CoolerType::purpur) >= 1;
     default:
       return false;
   }
@@ -512,7 +551,7 @@ void Reactor::_revertToSetup() {
   _cellVisitedCache = std::vector<int>(_x * _y * _z, 0);
   _clusterIdCache = std::vector<largeindex_t>(_x * _y * _z, -1);
   _cellPositionalEfficiency = std::vector<float>(_x * _y * _z, 0);
-  _cellModeratorFlux = std::vector<float>(_x * _y * _z, 0);
+  _cellModeratorFlux = std::vector<int>(_x * _y * _z, 0);
   _fluxedModeratorCache = std::vector<int>(_x * _y * _z, 0);
   _validClusterIds.clear();
   _inactiveBlocks = 0;
@@ -568,7 +607,7 @@ void Reactor::_revertToSetup() {
             _conductorCache.push_back(v);
             break;
         }
-        if(_primedStatus[_XYZV(v)] == 1 && _hasLineOfSightToOutside(UNPACK(v))) {
+        if(_primedStatus[_XYZV(v)] != NeutronSourceType::unprimed && _hasLineOfSightToOutside(UNPACK(v))) {
           _primedCellCache.push_back(v);
         }
       }
@@ -598,7 +637,7 @@ void Reactor::_fuelCellBroadcastFlux(index_t x, index_t y, index_t z, FuelType f
   for(const coord_t & o : offsets) {
     coord_t p(x, y, z);
     std::vector<coord_t> moderators_touched;
-    float sum_moderator_flux = 0;
+    int sum_moderator_flux = 0;
     float sum_moderator_eff = 0;
     int moderators_in_line = 0;
     for(int i = 0; i <= NEUTRON_REACH; i++) {
@@ -655,8 +694,8 @@ void Reactor::_fuelCellBroadcastFlux(index_t x, index_t y, index_t z, FuelType f
         {
           break;
         }
-        _cellModeratorFlux[_XYZV(n)] += 2 * sum_moderator_flux;
-        _cellPositionalEfficiency[_XYZV(n)] += REFLECTOR_EFFICIENCY * sum_moderator_eff /  moderators_in_line;
+        _cellModeratorFlux[_XYZV(n)] += 2 * sum_moderator_flux * reflector_refl[static_cast<int>(_reflectorTypes[_XYZV(n)])];
+        _cellPositionalEfficiency[_XYZV(n)] += reflector_eff[static_cast<int>(_reflectorTypes[_XYZV(n)])] * sum_moderator_eff /  moderators_in_line;
 
         _sandwichedModerators += moderators_in_line;
 
@@ -864,7 +903,12 @@ bool Reactor::_hasLineOfSightToOutside(index_t x, index_t y, index_t z)
 
 float Reactor::_fuelCellEfficiencyAt(index_t x, index_t y, index_t z, FuelType ft)
 {
-  return _cellPositionalEfficiency[_XYZ(x,y,z)] * fuel_eff[static_cast<int>(ft)] * (1. / (1. + expf(2. * (_cellModeratorFlux[_XYZ(x,y,z)] - 2. * fuel_crit[static_cast<int>(ft)]))));
+  float eff = _cellPositionalEfficiency[_XYZ(x,y,z)] * fuel_eff[static_cast<int>(ft)] * (1. / (1. + expf(2. * (_cellModeratorFlux[_XYZ(x,y,z)] - 2. * fuel_crit[static_cast<int>(ft)]))));
+  if (_primedStatus[_XYZ(x,y,z)] != NeutronSourceType::unprimed)
+  {
+    eff *= neutron_source_eff[static_cast<int>(_primedStatus[_XYZ(x,y,z)])];
+  }
+  return eff;
 }
 
 float Reactor::averageEfficiencyForFuel(FuelType ft)
@@ -969,7 +1013,7 @@ void Reactor::_evaluate(FuelType ft) {
       float coolingPenaltyMultiplier = 0.0;
       if(_heatingPerCluster[i] > 0 && _coolingPerCluster[i] > 0)
       {
-        coolingPenaltyMultiplier = std::min((float)1.0, _heatingPerCluster[i] / _coolingPerCluster[i]);
+        coolingPenaltyMultiplier = std::min((float)1.0, (_heatingPerCluster[i] + COOLING_LENIENCY) / _coolingPerCluster[i]);
       }
 
       _perClusterEff[i] = rawEfficiency * coolingPenaltyMultiplier;
@@ -991,8 +1035,6 @@ void Reactor::_evaluate(FuelType ft) {
         _worstCaseDutyCycle = std::min(_worstCaseDutyCycle, _coolingPerCluster[i] / _heatingPerCluster[i]);
       }
     }
-    _powerGeneratedCache[ft] = _totalPowerOutput;
-    _dutyCycleCache[ft] = _worstCaseDutyCycle;
 
     // summarize inactive blocks
     _inactiveBlocks = 0;
@@ -1024,6 +1066,11 @@ void Reactor::_evaluate(FuelType ft) {
         ++_inactiveBlocks;
       }
     }
+
+    _totalPowerOutput *= emptyReactorInefficiencyFactor();
+
+    _powerGeneratedCache[ft] = _totalPowerOutput;
+    _dutyCycleCache[ft] = _worstCaseDutyCycle;
   }
 }
 
@@ -1070,17 +1117,12 @@ std::set<coord_t> Reactor::suggestPrincipledLocations()
   return ret;
 }
 
-std::set<std::tuple<BlockType, CoolerType, ModeratorType, float> >
+std::set<std::tuple<BlockType, CoolerType, ModeratorType, NeutronSourceType, ReflectorType, float> >
 Reactor::suggestedBlocksAt(index_t x, index_t y, index_t z, PrincipledSearchMode m)
 {
-  std::set<std::tuple<BlockType, CoolerType, ModeratorType, float> > ret;
+  std::set<std::tuple<BlockType, CoolerType, ModeratorType, NeutronSourceType, ReflectorType, float> > ret;
 
   coord_t c(x, y, z);
-
-  if(blockTypeAt(x, y, z) == BlockType::reactorCell || blockTypeAt(x, y, z) == BlockType::reflector)
-  {
-    return ret;
-  }
 
   // collinear with an existing reactor cell?
   // for (const auto & o : offsets)
@@ -1113,16 +1155,34 @@ Reactor::suggestedBlocksAt(index_t x, index_t y, index_t z, PrincipledSearchMode
     if (blockTypeAt(x, y, z) == BlockType::moderator)
     {
       if(moderatorTypeAt(x, y, z) != ModeratorType::graphite)
-        ret.insert(std::make_tuple(BlockType::moderator, CoolerType::air, ModeratorType::graphite, 0.2));
+        ret.insert(std::make_tuple(BlockType::moderator, CoolerType::air, ModeratorType::graphite, NeutronSourceType::unprimed, ReflectorType::air, 0.2));
       if(moderatorTypeAt(x, y, z) != ModeratorType::beryllium)
-        ret.insert(std::make_tuple(BlockType::moderator, CoolerType::air, ModeratorType::beryllium, 0.2));
+        ret.insert(std::make_tuple(BlockType::moderator, CoolerType::air, ModeratorType::beryllium, NeutronSourceType::unprimed, ReflectorType::air, 0.2));
       if(moderatorTypeAt(x, y, z) != ModeratorType::heavyWater)
-        ret.insert(std::make_tuple(BlockType::moderator, CoolerType::air, ModeratorType::heavyWater, 0.2));
+        ret.insert(std::make_tuple(BlockType::moderator, CoolerType::air, ModeratorType::heavyWater, NeutronSourceType::unprimed, ReflectorType::air, 0.2));
+    }
+    // is this a reactorcell?
+    if (blockTypeAt(x, y, z) == BlockType::reactorCell)
+    {
+      if(neutronSourceTypeAt(x, y, z) != NeutronSourceType::ra_be && _hasLineOfSightToOutside(x, y, z))
+        ret.insert(std::make_tuple(BlockType::moderator, CoolerType::air, ModeratorType::air, NeutronSourceType::ra_be, ReflectorType::air, 0.2));
+      if(neutronSourceTypeAt(x, y, z) != NeutronSourceType::po_be && _hasLineOfSightToOutside(x, y, z))
+        ret.insert(std::make_tuple(BlockType::moderator, CoolerType::air, ModeratorType::air, NeutronSourceType::po_be, ReflectorType::air, 0.2));
+      if(neutronSourceTypeAt(x, y, z) != NeutronSourceType::cf_252 && _hasLineOfSightToOutside(x, y, z))
+        ret.insert(std::make_tuple(BlockType::moderator, CoolerType::air, ModeratorType::air, NeutronSourceType::cf_252, ReflectorType::air, 0.2));
+    }
+    // is this a reflector?
+    if (blockTypeAt(x, y, z) == BlockType::reflector)
+    {
+      if(reflectorTypeAt(x, y, z) != ReflectorType::beryllium_carbon)
+        ret.insert(std::make_tuple(BlockType::moderator, CoolerType::air, ModeratorType::air, NeutronSourceType::unprimed, ReflectorType::beryllium_carbon, 0.2));
+      if(reflectorTypeAt(x, y, z) != ReflectorType::lead_steel)
+        ret.insert(std::make_tuple(BlockType::moderator, CoolerType::air, ModeratorType::air, NeutronSourceType::unprimed, ReflectorType::lead_steel, 0.2));
     }
   }
   if (m == PrincipledSearchMode::computeCooling || m == PrincipledSearchMode::hybrid)
   {
-    if (blockTypeAt(x, y, z) == BlockType::moderator && m == PrincipledSearchMode::computeCooling)
+    if (blockTypeAt(x, y, z) == BlockType::moderator || blockTypeAt(x, y, z) == BlockType::reactorCell || blockTypeAt(x, y, z) == BlockType::reflector)
     {
       return ret;
     }
@@ -1140,7 +1200,7 @@ Reactor::suggestedBlocksAt(index_t x, index_t y, index_t z, PrincipledSearchMode
           largeindex_t cid = clusterIdAt(UNPACK(p+o));
           dh_pct = std::max(dh_pct, std::min(_heatingPerCluster[cid] / std::max(_coolingPerCluster[cid], (float)1.0), (float)2.0));
         }
-        ret.insert(std::make_tuple(BlockType::cooler, ct, ModeratorType::air, 1 + dh_pct));
+        ret.insert(std::make_tuple(BlockType::cooler, ct, ModeratorType::air, NeutronSourceType::unprimed, ReflectorType::air, 1 + dh_pct));
       }
     }
 
@@ -1149,13 +1209,13 @@ Reactor::suggestedBlocksAt(index_t x, index_t y, index_t z, PrincipledSearchMode
     || _blockTypeAdjacentTo(x, y, z, BlockType::conductor)
     || _blockTypeAdjacentTo(x, y, z, BlockType::casing))
     {
-      ret.insert(std::make_tuple(BlockType::conductor, CoolerType::air, ModeratorType::air, 1));
+      ret.insert(std::make_tuple(BlockType::conductor, CoolerType::air, ModeratorType::air, NeutronSourceType::unprimed, ReflectorType::air, 1));
     }
 
     // is this a cooler in an overcooled cluster?
     if (_heatingPerCluster[clusterIdAt(x, y, z)] < _coolingPerCluster[clusterIdAt(x, y, z)])
     {
-      ret.insert(std::make_tuple(BlockType::air, CoolerType::air, ModeratorType::air, _coolingPerCluster[clusterIdAt(x, y, z)] / std::max(_heatingPerCluster[clusterIdAt(x, y, z)], (float)1)));
+      ret.insert(std::make_tuple(BlockType::air, CoolerType::air, ModeratorType::air, NeutronSourceType::unprimed, ReflectorType::air, _coolingPerCluster[clusterIdAt(x, y, z)] / std::max(_heatingPerCluster[clusterIdAt(x, y, z)], (float)1)));
     }
   }
 
@@ -1169,15 +1229,15 @@ void Reactor::pruneInactives(bool ignoreConductors) {
     {
       for(int z = 0; z < _z; z++)
       {
-        if(blockTypeAt(x,y,z) != BlockType::air && blockTypeAt(x,y,z) != BlockType::conductor && !blockActiveAt(x, y, z) && !blockValidAt(x, y, z) && !_primedStatus[_XYZ(x,y,z)] && !_fluxedModeratorCache[_XYZ(x,y,z)])
+        if(blockTypeAt(x,y,z) != BlockType::air && blockTypeAt(x,y,z) != BlockType::conductor && !blockActiveAt(x, y, z) && !blockValidAt(x, y, z) && _primedStatus[_XYZ(x,y,z)] == NeutronSourceType::unprimed && !_fluxedModeratorCache[_XYZ(x,y,z)])
         {
-          setCell(x, y, z, BlockType::air, CoolerType::air, ModeratorType::air, false);
+          setCell(x, y, z, BlockType::air, CoolerType::air, ModeratorType::air, NeutronSourceType::unprimed, ReflectorType::air);
         }
         if(!ignoreConductors && blockTypeAt(x,y,z) == BlockType::conductor && _conductorIdCache[_XYZ(x,y,z)] == -1)
         {
-          setCell(x, y, z, BlockType::air, CoolerType::air, ModeratorType::air, false);
+          setCell(x, y, z, BlockType::air, CoolerType::air, ModeratorType::air, NeutronSourceType::unprimed, ReflectorType::air);
         }
-        if(blockTypeAt(x, y, z) == BlockType::reactorCell && _primedStatus[_XYZ(x,y,z)] && !blockActiveAt(x, y, z))
+        if(blockTypeAt(x, y, z) == BlockType::reactorCell && _primedStatus[_XYZ(x,y,z)] != NeutronSourceType::unprimed && !blockActiveAt(x, y, z))
         {
           bool prune = true;
           coord_t n(x, y, z);
@@ -1208,7 +1268,7 @@ void Reactor::pruneInactives(bool ignoreConductors) {
             }
           }
           if(prune)
-            setCell(x, y, z, BlockType::air, CoolerType::air, ModeratorType::air, false);
+            setCell(x, y, z, BlockType::air, CoolerType::air, ModeratorType::air, NeutronSourceType::unprimed, ReflectorType::air);
         }
       }
     }
@@ -1226,7 +1286,7 @@ void Reactor::clearInfeasibleClusters()
           for (int x = 0; x < _x; x++) {
             if(clusterIdAt(x, y, z) == i)
             {
-              setCell(x, y, z, BlockType::air, CoolerType::air, ModeratorType::air, false);
+              setCell(x, y, z, BlockType::air, CoolerType::air, ModeratorType::air, NeutronSourceType::unprimed, ReflectorType::air);
             }
           }
         }
@@ -1250,10 +1310,14 @@ std::string Reactor::describe() {
         {
           r += moderatorTypeShort[static_cast<int>(moderatorTypeAt(x,y,z))];
         }
-        else if(bt == BlockType::reactorCell && _primedStatus[_XYZ(x,y,z)] == 1)
+        else if(bt == BlockType::reactorCell && _primedStatus[_XYZ(x,y,z)] != NeutronSourceType::unprimed)
         {
-          r += '+';
+          r += neutronSourceTypeShort[static_cast<int>(neutronSourceTypeAt(x,y,z))];
           r += blockTypeShort[static_cast<int>(bt)];
+        }
+        else if(bt == BlockType::reflector)
+        {
+          r += reflectorTypeShort[static_cast<int>(reflectorTypeAt(x,y,z))];
         }
         else
         {
@@ -1291,7 +1355,7 @@ std::string Reactor::clusterStats() {
 std::string Reactor::jsonExport(FuelType f) {
   _evaluate(f);
 
-  std::string r = "{\"SaveVersion\":{\"Major\":2,\"Minor\":0,\"Build\":18,\"Revision\":0,\"MajorRevision\":0,\"MinorRevision\":0},";
+  std::string r = "{\"SaveVersion\":{\"Major\":2,\"Minor\":0,\"Build\":37,\"Revision\":0,\"MajorRevision\":0,\"MinorRevision\":0},";
 
   r += "\"HeatSinks\":{";
 
@@ -1309,26 +1373,24 @@ std::string Reactor::jsonExport(FuelType f) {
 
     for(const auto & coord : c.second)
     {
-      r += "\"";
+      r += "{\"X\":";
       r += std::to_string(coord.x()+1);
-      r += ",";
+      r += ",\"Y\":";
       r += std::to_string(coord.y()+1);
-      r += ",";
+      r += ",\"Z\":";
       r += std::to_string(coord.z()+1);
-      r += "\",\n";
+      r += "},";
     }
 
     if(c.second.size())
     {
       r.pop_back();
-      r.pop_back();
     }
 
-    r += "],\n";
+    r += "],";
   }
   if(coolersByType.size())
   {
-    r.pop_back();
     r.pop_back();
   }
   r += "},\"Moderators\":{";
@@ -1347,18 +1409,17 @@ std::string Reactor::jsonExport(FuelType f) {
 
     for(const auto & coord : c.second)
     {
-      r += "\"";
-      r += std::to_string(coord.x()+1);
-      r += ",";
-      r += std::to_string(coord.y()+1);
-      r += ",";
-      r += std::to_string(coord.z()+1);
-      r += "\",\n";
+    r += "{\"X\":";
+    r += std::to_string(coord.x()+1);
+    r += ",\"Y\":";
+    r += std::to_string(coord.y()+1);
+    r += ",\"Z\":";
+    r += std::to_string(coord.z()+1);
+    r += "},";
     }
 
     if(c.second.size())
     {
-      r.pop_back();
       r.pop_back();
     }
 
@@ -1371,60 +1432,97 @@ std::string Reactor::jsonExport(FuelType f) {
   r += "},\"Conductors\":[";
   for(const auto & coord : _conductorCache)
   {
-    r += "\"";
+    r += "{\"X\":";
     r += std::to_string(coord.x()+1);
-    r += ",";
+    r += ",\"Y\":";
     r += std::to_string(coord.y()+1);
-    r += ",";
+    r += ",\"Z\":";
     r += std::to_string(coord.z()+1);
-    r += "\",\n";
+    r += "},";
   }
   if(_conductorCache.size())
   {
     r.pop_back();
-    r.pop_back();
   }
-  r += "],\"Reflectors\":[";
-  for(const auto & coord : _reflectorCache)
+  r += "],\"Reflectors\":{";
+  std::map<ReflectorType, std::vector<coord_t> > reflectorsByType;
+  for(const coord_t & c : _reflectorCache)
+  {
+    reflectorsByType[reflectorTypeAt(UNPACK(c))].push_back(c);
+  }
+
+  for(const auto & c : reflectorsByType)
   {
     r += "\"";
-    r += std::to_string(coord.x()+1);
-    r += ",";
-    r += std::to_string(coord.y()+1);
-    r += ",";
-    r += std::to_string(coord.z()+1);
-    r += "\",\n";
+    r += reflectorTypeLong[static_cast<int>(c.first)];
+    r += "\":[";
+
+    for(const auto & coord : c.second)
+    {
+      r += "{\"X\":";
+      r += std::to_string(coord.x()+1);
+      r += ",\"Y\":";
+      r += std::to_string(coord.y()+1);
+      r += ",\"Z\":";
+      r += std::to_string(coord.z()+1);
+      r += "},";
+    }
+
+    if(c.second.size())
+    {
+      r.pop_back();
+    }
+
+    r += "],";
   }
-  if(_reflectorCache.size())
+  if(reflectorsByType.size())
   {
     r.pop_back();
-    r.pop_back();
   }
-  r += "],\"FuelCells\":{\"";
-  r += fuel_names[static_cast<int>(f)];
-  r += ";True\":[";
-  for(const auto & coord : _reactorCellCache)
+  r += "},\"FuelCells\":{";
+
+  std::map<NeutronSourceType, std::vector<coord_t> > cellPrimersByType;
+  for(const coord_t & c : _reactorCellCache)
+  {
+    cellPrimersByType[_primedStatus[_XYZV(c)]].push_back(c);
+  }
+
+  for(const auto & c : cellPrimersByType)
   {
     r += "\"";
-    r += std::to_string(coord.x()+1);
-    r += ",";
-    r += std::to_string(coord.y()+1);
-    r += ",";
-    r += std::to_string(coord.z()+1);
-    r += "\",\n";
+    r += fuel_names[static_cast<int>(f)];
+    r += ";";
+    r += c.first == NeutronSourceType::unprimed ? "False" : "True";
+    r += ";";
+    r += neutronSourceTypeLong[static_cast<int>(c.first)];
+    r += "\":[";
+    for(const auto & coord : c.second)
+    {
+      r += "{\"X\":";
+      r += std::to_string(coord.x()+1);
+      r += ",\"Y\":";
+      r += std::to_string(coord.y()+1);
+      r += ",\"Z\":";
+      r += std::to_string(coord.z()+1);
+      r += "},";
+    }
+    if(_reactorCellCache.size())
+    {
+      r.pop_back();
+    }
+    r += "],"; 
   }
-  if(_reactorCellCache.size())
+  if(cellPrimersByType.size())
   {
     r.pop_back();
-    r.pop_back();
   }
-  r += "]},\"InteriorDimensions\":\"";
+  r += "},\"InteriorDimensions\":{\"X\":";
   r += std::to_string(_x);
-  r += ",";
+  r += ",\"Y\":";
   r += std::to_string(_y);
-  r += ",";
+  r += ",\"Z\":";
   r += std::to_string(_z);
-  r += "\"}";
+  r += "}}";
 
   return r;
 

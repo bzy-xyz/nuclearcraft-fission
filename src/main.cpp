@@ -24,210 +24,66 @@
 
 std::default_random_engine generator;
 
-const std::vector<BlockType> shortBlockTypes = {
-  // BlockType::air, //0
-  // BlockType::air, //1
-  BlockType::reactorCell, //2 (primed)
-  BlockType::moderator, //3
-  BlockType::moderator, //4
-  BlockType::moderator, //5
-  // BlockType::moderator, //3
-  // BlockType::moderator, //4
-  // BlockType::moderator, //5
-  BlockType::conductor,
-  BlockType::reflector,
-  BlockType::cooler,
-  BlockType::cooler,
-  BlockType::cooler,
-  BlockType::cooler,
-  BlockType::cooler,
-  BlockType::cooler,
-  BlockType::cooler,
-  BlockType::cooler,
-  BlockType::cooler,
-  BlockType::cooler,
-  BlockType::cooler,
-  BlockType::cooler,
-  BlockType::cooler,
-  BlockType::cooler,
-  BlockType::cooler,
-  BlockType::cooler,
-  BlockType::cooler,
-  BlockType::cooler,
-  BlockType::cooler,
-  BlockType::cooler,
-  BlockType::cooler,
-  BlockType::cooler,
-  BlockType::cooler,
-  BlockType::cooler,
-  BlockType::cooler,
-  BlockType::cooler,
-  BlockType::cooler,
-  BlockType::cooler,
-  BlockType::cooler,
-  BlockType::cooler,
-  BlockType::cooler,
-  BlockType::cooler
+typedef std::tuple<BlockType, CoolerType, ModeratorType, NeutronSourceType, ReflectorType> BlockDefinition;
+
+const std::vector<BlockDefinition> shortBlockDefs_stage1 = {
+  std::make_tuple(BlockType::reactorCell,  CoolerType::air,          ModeratorType::air,         NeutronSourceType::ra_be,     ReflectorType::air),
+  std::make_tuple(BlockType::reactorCell,  CoolerType::air,          ModeratorType::air,         NeutronSourceType::po_be,     ReflectorType::air),
+  std::make_tuple(BlockType::reactorCell,  CoolerType::air,          ModeratorType::air,         NeutronSourceType::cf_252,    ReflectorType::air),
+  std::make_tuple(BlockType::moderator,    CoolerType::air,          ModeratorType::graphite,    NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::moderator,    CoolerType::air,          ModeratorType::beryllium,   NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::moderator,    CoolerType::air,          ModeratorType::heavyWater,  NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::conductor,    CoolerType::air,          ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::conductor,    CoolerType::air,          ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::conductor,    CoolerType::air,          ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::reflector,    CoolerType::air,          ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::beryllium_carbon),
+  std::make_tuple(BlockType::reflector,    CoolerType::air,          ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::lead_steel),
 };
 
-const std::vector<CoolerType> shortCoolerTypes_all = {
-  // CoolerType::air,
-  // CoolerType::air,
-  CoolerType::air,
-  CoolerType::air,
-  CoolerType::air,
-  CoolerType::air,
-  // CoolerType::air,
-  // CoolerType::air,
-  // CoolerType::air,
-  CoolerType::air,
-  CoolerType::air,
-  CoolerType::water,
-  CoolerType::iron,
-  CoolerType::redstone,
-  CoolerType::quartz,
-  CoolerType::obsidian,
-  CoolerType::glowstone,
-  CoolerType::lapis,
-  CoolerType::gold,
-  CoolerType::prismarine,
-  CoolerType::purpur,
-  CoolerType::diamond,
-  CoolerType::emerald,
-  CoolerType::copper,
-  CoolerType::tin,
-  CoolerType::lead,
-  CoolerType::boron,
-  CoolerType::lithium,
-  CoolerType::magnesium,
-  CoolerType::manganese,
-  CoolerType::aluminum,
-  CoolerType::silver,
-  CoolerType::helium,
-  CoolerType::enderium,
-  CoolerType::cryotheum,
-  CoolerType::carobbite,
-  CoolerType::fluorite,
-  CoolerType::villiaumite,
-  CoolerType::arsenic,
-  CoolerType::tcalloy,
-  CoolerType::endstone,
-  CoolerType::slime,
-  CoolerType::netherbrick
+const std::vector<BlockDefinition> shortBlockDefs_stage2 = {
+  std::make_tuple(BlockType::reactorCell,  CoolerType::air,          ModeratorType::air,         NeutronSourceType::ra_be,     ReflectorType::air),
+  std::make_tuple(BlockType::reactorCell,  CoolerType::air,          ModeratorType::air,         NeutronSourceType::po_be,     ReflectorType::air),
+  std::make_tuple(BlockType::reactorCell,  CoolerType::air,          ModeratorType::air,         NeutronSourceType::cf_252,    ReflectorType::air),
+  std::make_tuple(BlockType::moderator,    CoolerType::air,          ModeratorType::graphite,    NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::moderator,    CoolerType::air,          ModeratorType::beryllium,   NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::moderator,    CoolerType::air,          ModeratorType::heavyWater,  NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::conductor,    CoolerType::air,          ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::reflector,    CoolerType::air,          ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::beryllium_carbon),
+  std::make_tuple(BlockType::reflector,    CoolerType::air,          ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::lead_steel),
+  std::make_tuple(BlockType::cooler,       CoolerType::water,        ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::cooler,       CoolerType::iron,         ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::cooler,       CoolerType::redstone,     ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::cooler,       CoolerType::quartz,       ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::cooler,       CoolerType::obsidian,     ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::cooler,       CoolerType::glowstone,    ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::cooler,       CoolerType::lapis,        ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::cooler,       CoolerType::gold,         ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::cooler,       CoolerType::prismarine,   ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::cooler,       CoolerType::purpur,       ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::cooler,       CoolerType::diamond,      ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::cooler,       CoolerType::emerald,      ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::cooler,       CoolerType::copper,       ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::cooler,       CoolerType::tin,          ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::cooler,       CoolerType::lead,         ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::cooler,       CoolerType::boron,        ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::cooler,       CoolerType::lithium,      ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::cooler,       CoolerType::magnesium,    ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::cooler,       CoolerType::manganese,    ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::cooler,       CoolerType::aluminum,     ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::cooler,       CoolerType::silver,       ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::cooler,       CoolerType::helium,       ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::cooler,       CoolerType::enderium,     ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::cooler,       CoolerType::cryotheum,    ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::cooler,       CoolerType::carobbite,    ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::cooler,       CoolerType::fluorite,     ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::cooler,       CoolerType::villiaumite,  ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::cooler,       CoolerType::arsenic,      ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::cooler,       CoolerType::endstone,     ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::cooler,       CoolerType::slime,        ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::air),
+  std::make_tuple(BlockType::cooler,       CoolerType::netherbrick,  ModeratorType::air,         NeutronSourceType::unprimed,  ReflectorType::air),
 };
 
-const std::vector<CoolerType> shortCoolerTypes_early = {
-  // CoolerType::air,
-  // CoolerType::air,
-  CoolerType::air,
-  CoolerType::air,
-  CoolerType::air,
-  CoolerType::air,
-  // CoolerType::air,
-  // CoolerType::air,
-  // CoolerType::air,
-  CoolerType::air,
-  CoolerType::air,
-  // CoolerType::water,
-  // CoolerType::iron,
-  // CoolerType::redstone,
-  // CoolerType::quartz,
-  // CoolerType::obsidian,
-  // CoolerType::glowstone,
-  // CoolerType::lapis,
-  // CoolerType::gold,
-  // CoolerType::copper,
-  // CoolerType::tin,
-  // CoolerType::lead,
-  // CoolerType::boron,
-  // CoolerType::lithium,
-  // CoolerType::magnesium,
-  // CoolerType::manganese,
-  // CoolerType::aluminum,
-  // CoolerType::silver,
-  // CoolerType::netherbrick
-};
-
-const std::vector<ModeratorType> shortModeratorTypes_all = {
-  // ModeratorType::air,
-  // ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::graphite,
-  ModeratorType::beryllium,
-  ModeratorType::heavyWater,
-  // ModeratorType::graphite,
-  // ModeratorType::beryllium,
-  // ModeratorType::heavyWater,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air
-};
-
-const std::vector<ModeratorType> shortModeratorTypes_early = {
-  // ModeratorType::air,
-  // ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::graphite,
-  ModeratorType::beryllium,
-  ModeratorType::heavyWater,
-  // ModeratorType::graphite,
-  // ModeratorType::beryllium,
-  // ModeratorType::heavyWater,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-  ModeratorType::air,
-};
-
-const std::vector<CoolerType> * shortCoolerTypes = &shortCoolerTypes_early;
-const std::vector<ModeratorType> * shortModeratorTypes = &shortModeratorTypes_early;
+const std::vector<BlockDefinition> * shortBlockDefs = &shortBlockDefs_stage1;
 
 // float objective_fn_efficiency(Reactor & r, FuelType optimizeFuel)
 // {
@@ -242,15 +98,15 @@ float objective_fn_output_stage1(Reactor & r, FuelType optimizeFuel)
   //         + r.sandwichedModerators() * 10  + r.numCoolers() * 2 + r.numModerators() + r.averageEfficiencyForFuel(optimizeFuel) * 100)
   //         * (pow(0.95, abs(r.heatBalance() / 60 - r.numEmptyBlocks())))
   //         / (1 + r.numTrappedCells() * 10 /* + r.numValidClusters() */ /* + r.inactiveBlocks() * r.inactiveBlocks() */ /* + std::max(r.numCoolerTypes() - 6, 0) */ /*+ (r.isSelfSustaining() ? r.numPrimedCells() * 2 : 0)*/);
-  return 1 + (r.totalCells() + r.averageEfficiencyForFuel(optimizeFuel) * 20 + r.sandwichedModerators() * 10 + r.numModerators())
-         * (pow(0.95, abs(r.heatBalance() / 120 - r.numEmptyBlocks())))
-         / (0.1 + r.numTrappedCells());
+  return 1 + (r.totalCells() * 1 + r.averageEfficiencyForFuel(optimizeFuel) * 2000 + r.sandwichedModerators() * 100 + r.numModerators() * 10)
+         * (pow(0.8, abs(r.heatBalance() / 40 - r.numEmptyBlocks())))
+         / (0.1 + r.numTrappedCells() * r.numTrappedCells() * 50 + std::max((long)0, r.totalCells() - 3));
 }
 
 float objective_fn_output_stage2(Reactor & r, FuelType optimizeFuel)
 {
-  return 1 + (r.effectivePowerGenerated(optimizeFuel) * 100 * pow(r.dutyCycle(optimizeFuel), 1.1) + r.averageEfficiencyForFuel(optimizeFuel) * 100 + r.totalCooling() / 25)
-          * (pow(0.99, r.numEmptyBlocks()));
+  return 1 + (r.effectivePowerGenerated(optimizeFuel) * 100 * pow(r.dutyCycle(optimizeFuel), 3) + r.averageEfficiencyForFuel(optimizeFuel) * 10 + r.totalCooling());
+          //* (pow(0.99, std::max(r.numEmptyBlocks() - (largeindex_t)(r.volume() * (1.0 - EMPTY_REACTOR_PENALTY_THRESH)), (largeindex_t)0)));
 }
 
 
@@ -269,7 +125,7 @@ float objective_fn_output_stage2(Reactor & r, FuelType optimizeFuel)
 float keep_fn_output(Reactor & r, FuelType optimizeFuel)
 {
   return 1 + (r.effectivePowerGenerated(optimizeFuel) * 100 * pow(r.dutyCycle(optimizeFuel), 4) + r.totalCells() * 20 + + r.totalCooling() / 25 + r.averageEfficiencyForFuel(optimizeFuel) * 100)
-  * (pow(0.99, r.numEmptyBlocks()))
+  //* (pow(0.99, std::max(r.numEmptyBlocks() - (largeindex_t)(r.volume() * (1.0 - EMPTY_REACTOR_PENALTY_THRESH)), (largeindex_t)0)))
   / (1 /* + r.numValidClusters() */ /* + r.inactiveBlocks() * r.inactiveBlocks() */ /* + std::max(r.numCoolerTypes() - 6, 0) */ /*+ (r.isSelfSustaining() ? r.numPrimedCells() * 2 : 0)*/);
 }
 
@@ -295,14 +151,14 @@ void step_rnd(Reactor & r, int idx, FuelType f, decltype(OBJECTIVE_FN) objective
   // principled extension
   if(idx > switchThresh)
   {
-    std::vector<std::tuple<coord_t, BlockType, CoolerType, ModeratorType, float> > principledActions;
+    std::vector<std::tuple<coord_t, BlockType, CoolerType, ModeratorType, NeutronSourceType, ReflectorType, float> > principledActions;
 
     PrincipledSearchMode m = PrincipledSearchMode::computeCooling;
 
-    if(r.effectivePowerGenerated(f))
-    {
-      m = PrincipledSearchMode::hybrid;
-    }
+    // if(r.effectivePowerGenerated(f))
+    // {
+    //   m = PrincipledSearchMode::hybrid;
+    // }
 
     if(r.isBalanced())
     {
@@ -354,11 +210,11 @@ void step_rnd(Reactor & r, int idx, FuelType f, decltype(OBJECTIVE_FN) objective
     if(principledActions.size())
     {
       #pragma omp parallel for
-      for(int m = 0; m < 100; m++)
+      for(int m = 0; m < 200; m++)
       {
         Reactor r1 = r;
 
-        int nn = std::uniform_int_distribution<int>(2, 4)(generator);
+        int nn = std::uniform_int_distribution<int>(1, 3)(generator);
         float s = 0;
         for(int n = 0; n < nn; n++)
         {
@@ -369,12 +225,14 @@ void step_rnd(Reactor & r, int idx, FuelType f, decltype(OBJECTIVE_FN) objective
           BlockType bt = std::get<1>(theAction);
           CoolerType ct = std::get<2>(theAction);
           ModeratorType mt = std::get<3>(theAction);
-          float _s = std::get<4>(theAction);
+          NeutronSourceType nt = std::get<4>(theAction);
+          ReflectorType rt = std::get<5>(theAction);
+          float _s = std::get<6>(theAction);
 
           BlockType bt_at = r1.blockTypeAt(UNPACK(where));
           if(bt_at != BlockType::reactorCell && (bt_at != BlockType::moderator || mt != ModeratorType::air) && bt_at != BlockType::reflector)
           {
-            r1.setCell(UNPACK(where), bt, ct, mt, bt == BlockType::reactorCell);
+            r1.setCell(UNPACK(where), bt, ct, mt, nt, rt);
             s += _s;
           }
         }
@@ -391,38 +249,40 @@ void step_rnd(Reactor & r, int idx, FuelType f, decltype(OBJECTIVE_FN) objective
   }
 
   // unprincipled random search
-  if(idx <= switchThresh || steps.size() == 0)
+  //if(idx <= switchThresh || steps.size() == 0)
+  if(1)
   {
+    int m_limit = (idx <= switchThresh ? 400 : 100);
     #pragma omp parallel for
-    for(int m = 0; m < 400; m++)
+    for(int m = 0; m < m_limit; m++)
     {
       int x, y, z, i;
 
       Reactor r1 = r;
 
-      int nn = std::uniform_int_distribution<int>(1, 8)(generator);;
+      int nn = std::uniform_int_distribution<int>(1, 4)(generator);;
       for(int n = 0; n < nn; n++) {
         x = std::uniform_int_distribution<int>(0, r.x() - 1)(generator);
         y = std::uniform_int_distribution<int>(0, r.y() - 1)(generator);
         z = std::uniform_int_distribution<int>(0, r.z() - 1)(generator);
-        i = std::uniform_int_distribution<int>(0, shortCoolerTypes->size() - 1)(generator);
-        r1.setCell(x, y, z, shortBlockTypes[i], (*shortCoolerTypes)[i], (*shortModeratorTypes)[i], true);
-        if(r.x() > 2 && r.y() > 2 && r.z() > 2 && idx < 1000) {
-          r1.setCell(r.x() - 1 - x, y, z, shortBlockTypes[i], (*shortCoolerTypes)[i], (*shortModeratorTypes)[i], true);
-          if(r.x() > 2 && r.y() > 2 && r.z() > 2 && idx < 500) {
-            r1.setCell(x, y, r.z() - 1 - z, shortBlockTypes[i], (*shortCoolerTypes)[i], (*shortModeratorTypes)[i], true);
-            r1.setCell(r.x() - 1 - x, y, r.z() - 1 - z, shortBlockTypes[i], (*shortCoolerTypes)[i], (*shortModeratorTypes)[i], true);
-            if(r.x() > 2 && r.y() > 2 && r.z() > 2 && idx < 200) {
-              r1.setCell(x, r.y() - 1 - y, z, shortBlockTypes[i], (*shortCoolerTypes)[i], (*shortModeratorTypes)[i], true);
-              r1.setCell(r.x() - 1 - x, r.y() - 1 - y, z, shortBlockTypes[i], (*shortCoolerTypes)[i], (*shortModeratorTypes)[i], true);
-              r1.setCell(x, r.y() - 1 - y, r.z() - 1 - z, shortBlockTypes[i], (*shortCoolerTypes)[i], (*shortModeratorTypes)[i], true);
-              r1.setCell(r.x() - 1 - x, r.y() - 1 - y, r.z() - 1 - z, shortBlockTypes[i], (*shortCoolerTypes)[i], (*shortModeratorTypes)[i], true);
-            }
-          }
-        }
+        i = std::uniform_int_distribution<int>(0, shortBlockDefs->size() - 1)(generator);
+        r1.setCell(x, y, z, std::get<BlockType>((*shortBlockDefs)[i]), std::get<CoolerType>((*shortBlockDefs)[i]), std::get<ModeratorType>((*shortBlockDefs)[i]), std::get<NeutronSourceType>((*shortBlockDefs)[i]), std::get<ReflectorType>((*shortBlockDefs)[i]));
+        // if(r.x() > 2 && r.y() > 2 && r.z() > 2 && idx < 1000) {
+        //   r1.setCell(r.x() - 1 - x, y, z, std::get<BlockType>((*shortBlockDefs)[i]), std::get<CoolerType>((*shortBlockDefs)[i]), std::get<ModeratorType>((*shortBlockDefs)[i]), std::get<NeutronSourceType>((*shortBlockDefs)[i]), std::get<ReflectorType>((*shortBlockDefs)[i]));
+        //   if(r.x() > 2 && r.y() > 2 && r.z() > 2 && idx < 500) {
+        //     r1.setCell(x, y, r.z() - 1 - z, std::get<BlockType>((*shortBlockDefs)[i]), std::get<CoolerType>((*shortBlockDefs)[i]), std::get<ModeratorType>((*shortBlockDefs)[i]), std::get<NeutronSourceType>((*shortBlockDefs)[i]), std::get<ReflectorType>((*shortBlockDefs)[i]));
+        //     r1.setCell(r.x() - 1 - x, y, r.z() - 1 - z, std::get<BlockType>((*shortBlockDefs)[i]), std::get<CoolerType>((*shortBlockDefs)[i]), std::get<ModeratorType>((*shortBlockDefs)[i]), std::get<NeutronSourceType>((*shortBlockDefs)[i]), std::get<ReflectorType>((*shortBlockDefs)[i]));
+        //     if(r.x() > 2 && r.y() > 2 && r.z() > 2 && idx < 200) {
+        //       r1.setCell(x, r.y() - 1 - y, z, std::get<BlockType>((*shortBlockDefs)[i]), std::get<CoolerType>((*shortBlockDefs)[i]), std::get<ModeratorType>((*shortBlockDefs)[i]), std::get<NeutronSourceType>((*shortBlockDefs)[i]), std::get<ReflectorType>((*shortBlockDefs)[i]));
+        //       r1.setCell(r.x() - 1 - x, r.y() - 1 - y, z, std::get<BlockType>((*shortBlockDefs)[i]), std::get<CoolerType>((*shortBlockDefs)[i]), std::get<ModeratorType>((*shortBlockDefs)[i]), std::get<NeutronSourceType>((*shortBlockDefs)[i]), std::get<ReflectorType>((*shortBlockDefs)[i]));
+        //       r1.setCell(x, r.y() - 1 - y, r.z() - 1 - z, std::get<BlockType>((*shortBlockDefs)[i]), std::get<CoolerType>((*shortBlockDefs)[i]), std::get<ModeratorType>((*shortBlockDefs)[i]), std::get<NeutronSourceType>((*shortBlockDefs)[i]), std::get<ReflectorType>((*shortBlockDefs)[i]));
+        //       r1.setCell(r.x() - 1 - x, r.y() - 1 - y, r.z() - 1 - z, std::get<BlockType>((*shortBlockDefs)[i]), std::get<CoolerType>((*shortBlockDefs)[i]), std::get<ModeratorType>((*shortBlockDefs)[i]), std::get<NeutronSourceType>((*shortBlockDefs)[i]), std::get<ReflectorType>((*shortBlockDefs)[i]));
+        //     }
+        //   }
+        // }
       }
 
-      double score = std::max(pow(objective_fn(r1, f), 1. + (float)(idx % 10000) / 5000), 0.01);
+      double score = std::max(pow(objective_fn(r1, f) / (1 + r.centerDist(x, y, z) / std::max(std::max(r.x(), r.y()), r.z())), 1. + (float)(idx % 10000) / 5000), 0.01);
       #pragma omp critical
       {
         if(!tabuSet.count(r1) || m == 0) {
@@ -476,61 +336,8 @@ int main(int argc, char ** argv)
 
   fprintf(stderr, "%d %d %d %s ", x, y, z, fuelNameForFuelType(optimizeFuel).c_str());
 
-  shortCoolerTypes = &shortCoolerTypes_early;
-  //
-  // if (argc >= 6) {
-  //   switch (atoi(argv[5])) {
-  //     case 0:
-  //       shortCoolerTypes = &shortCoolerTypes_all;
-  //       break;
-  //     case 1:
-  //       shortCoolerTypes = &shortCoolerTypes_early;
-  //       break;
-  //   }
-  // }
-
-  if (shortCoolerTypes == &shortCoolerTypes_all) {
-    fprintf(stderr, "all ");
-  }
-  else if (shortCoolerTypes == &shortCoolerTypes_early) {
-    fprintf(stderr, "passive_early ");
-  }
-  else {
-    fprintf(stderr, "??? ");
-  }
-
   auto objective_fn = objective_fn_output_stage1;
   auto keep_fn = KEEP_FN;
-
-  // if (argc >= 7) {
-  //   switch (atoi(argv[6])) {
-  //     case 0:
-  //       objective_fn = objective_fn_efficiency;
-  //       keep_fn = keep_fn_efficiency;
-  //       break;
-  //     case 1:
-  //       objective_fn = objective_fn_output;
-  //       keep_fn = keep_fn_output;
-  //       break;
-  //     case 2:
-  //       objective_fn = objective_fn_cells;
-  //       keep_fn = keep_fn_cells;
-  //       break;
-  //   }
-  // }
-
-  // if (objective_fn == objective_fn_efficiency) {
-  //   fprintf(stderr, "efficiency\n");
-  // }
-  // else if (objective_fn == objective_fn_output) {
-  //   fprintf(stderr, "output\n");
-  // }
-  // else if (objective_fn == objective_fn_cells) {
-  //   fprintf(stderr, "cells\n");
-  // }
-  // else {
-  //   fprintf(stderr, "???\n");
-  // }
 
   signal(SIGINT, catch_sigint);
 
@@ -542,7 +349,7 @@ int main(int argc, char ** argv)
       for(int _z = 0; _z < z; _z++)
       {
         // int i = std::uniform_int_distribution<int>(0, shortCoolerTypes->size() - 1)(generator);
-        r.setCell(_x, _y, _z, BlockType::conductor, CoolerType::air, ModeratorType::air, false);
+        r.setCell(_x, _y, _z, BlockType::conductor, CoolerType::air, ModeratorType::air, NeutronSourceType::unprimed, ReflectorType::air);
       }
     }
   }
@@ -566,7 +373,7 @@ int main(int argc, char ** argv)
         fprintf(stderr, " ");
       }
       fprintf(stderr, "\r");
-      fprintf(stderr, "step %u %f %u %f %f %f %f %d", i, objective_fn(r, optimizeFuel), best_r.totalCells(), best_r.effectivePowerGenerated(optimizeFuel), best_r.effectivePowerGenerated(optimizeFuel) / std::max(best_r.totalCells(), (int_fast32_t)1), best_r.dutyCycle(optimizeFuel), best_r.heatBalance(), best_r.numEmptyBlocks());
+      fprintf(stderr, "step %u %f %u %f %f %f %f %d %f", i, objective_fn(r, optimizeFuel), best_r.totalCells(), best_r.effectivePowerGenerated(optimizeFuel), best_r.effectivePowerGenerated(optimizeFuel) / std::max(best_r.totalCells(), (int_fast32_t)1), best_r.dutyCycle(optimizeFuel), best_r.heatBalance(), best_r.numEmptyBlocks(), best_r.emptyReactorInefficiencyFactor());
     }
     step(r, i, optimizeFuel, objective_fn);
     if(keep_fn(r, optimizeFuel) > keep_fn(best_r  , optimizeFuel))
@@ -588,10 +395,11 @@ int main(int argc, char ** argv)
       objective_fn(r, optimizeFuel);
     }
 
-    if(!(i % 4000))
+    if(!(i % 4000) && best_r.effectivePowerGenerated(optimizeFuel) <= 0)
     {
       r = best_r;
       r.clearInfeasibleClusters();
+      objective_fn(r, optimizeFuel);
       r.pruneInactives(true);
       r.pruneInactives(true);
       r.floodFillWithConductors();
@@ -654,6 +462,13 @@ int main(int argc, char ** argv)
     std::string rjson = best_r.jsonExport(optimizeFuel);
     fwrite(rjson.data(), sizeof(decltype(rjson)::value_type), rjson.size(), outJson);
     fclose(outJson);
+  }
+
+  FILE * outCSV = fopen("log.csv", "a");
+  if(outCSV)
+  {
+    fprintf(outCSV, "\"%s\",%f,%f,%f\n", outFileName, best_r.effectivePowerGenerated(optimizeFuel), best_r.totalHeating(), best_r.totalCooling());
+    fclose(outCSV);
   }
   return 0;
 }
