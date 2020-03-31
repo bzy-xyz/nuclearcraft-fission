@@ -4,29 +4,29 @@ A program to search for viable NuclearCraft fission reactors.
 
 ## Requirements
 
-* A c++11 compatible C compiler with OpenMP support.
+* A c++2a compatible C compiler with OpenMP support.
 
 ## Limitations
 
 * Uses the stock cooling configuration. Your modpack may be different! Change
   values in `Reactor.cpp` to match your modpack.
+  (The Enigmatica 2 Expert values are included; you can switch at compile-time
+  by changing `Reactor.cpp:18` to `#define RULESET_E2E`.)
 * Supports only one type of active cooling at a time; will yield incorrect
   results if you attempt to mix them.
 
 ## Usage
 
-`search [x y z] [fuelType] [coolerRestrictions] [strategy]`
+`search [x y z] [fuelType] [coolerRestrictions] [strategy] [load_file]`
 
 `x y z` dimensions of reactor (default 5x5x5).
 
 `fuelType` (2 - 53) is the index of the fuel type to optimise for (default
-LEU235O).
+LEU235O). LEU235O is 9, HECf251O is 53. Guideposts in `Reactor.h`.
 
-`coolerRestrictions` (0 - 2):
+`coolerRestrictions` (0 - ?):
 
-* 0: any passive or cryotheum active
-* 1: passive only (default)
-* 2: passive enderium or active cryotheum only
+* does absolutely nothing right now, just set this to 0
 
 `strategy` (0 - 2):
 
@@ -34,17 +34,33 @@ LEU235O).
 * 1: effective output
 * 2: effective reactor cell count (heat adjusted)
 
+`load_file` (path to a Hellrage-compatible JSON file):
+
+* will ignore the passed in reactor dimensions and load the target reactor as 
+  an initial state
+
+Will produce a Hellrage-compatible JSON as output to `out.json` upon finishing
+or Ctrl-C.
+
 ## Strategy
 
 * Uses a pseudo-simulated-annealing strategy.
-* At every step, generates up to 400 "nearby" reactors by changing between 1
-  and 5 cells at a time, and chooses probabilistically weighted by a power of
-  the objective function value (power dependent on step count).
-    * This step is parallelized with OpenMP support.
-* Before iteration 500, imposes XYZ symmetry on the reactor to "kickstart" the
-  search process.
-* Does its best not to revisit reactor patterns seen in the past (but doesn't
-  know about rotations or reflections).
+* At every step, does the following:
+  * Generates the set of "sensible" reactor differences. That is, for each cell,
+    figures out which coolers could be active there and whether a moderator
+    makes sense.
+  * Draws with replacement 1 - 2 of these, applies them to the current reactor,
+    and then scores the results. Does this 100 times.
+  * Also generates 50 reactors with new reactor / moderator / air cells at 
+    1 - 4 random places and scores those as well.
+  * Before iteration 500, imposes XYZ symmetry on the reactor to "kickstart" the
+    search process.
+  * Picks a random reactor among the accumulated set, weighted by score. If it's
+    the best one seen so far, set it aside. Nevertheless, keep evolving from the
+    new reactor.
+* With a 1/250 chance per step, resets to the best reactor.
+* Does the above N/2 times in parallel (where N is the number of logical cores
+  you have).
 * Runs for 20k steps.
 
 ## Output

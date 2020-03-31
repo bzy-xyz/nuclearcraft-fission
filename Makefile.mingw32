@@ -1,6 +1,6 @@
 CC = `which x86_64-w64-mingw32-g++`
 
-CCFLAGS = -Wall -g --std=c++17 -fopenmp -D_GLIBCXX_PARALLEL -O3
+CCFLAGS = -Wall -g --std=c++2a -fopenmp -O3 -I src
 LDFLAGS = -lm -static -static-libgcc -static-libstdc++
 
 .PHONY: all clean

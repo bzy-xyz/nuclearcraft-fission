@@ -9,6 +9,8 @@
 #include <set>
 #include <array>
 
+#include <json/json.h>
+
 enum struct BlockType {
   air = 0,
   reactorCell, // 1
@@ -43,32 +45,32 @@ enum struct CoolerType {
 enum struct FuelType {
   air = 0,
   generic,
-  TBU, TBUO,
-  LEU233, LEU233O,
-  HEU233, HEU233O,
-  LEU235, LEU235O,
-  HEU235, HEU235O,
-  LEN236, LEN236O,
-  HEN236, HEN236O,
-  LEP239, LEP239O,
-  HEP239, HEP239O,
-  LEP241, LEP241O,
-  HEP241, HEP241O,
-  MOX239, MOX241,
-  LEA242, LEA242O,
-  HEA242, HEA242O,
-  LECm243, LECm243O,
-  HECm243, HECm243O,
-  LECm245, LECm245O,
-  HECm245, HECm245O,
-  LECm247, LECm247O,
-  HECm247, HECm247O,
-  LEB248, LEB248O,
-  HEB248, HEB248O,
-  LECf249, LECf249O,
-  HECf249, HECf249O,
-  LECf251, LECf251O,
-  HECf251, HECf251O,
+  TBU, TBUO, // 3
+  LEU233, LEU233O, // 5
+  HEU233, HEU233O, // 7
+  LEU235, LEU235O, // 9
+  HEU235, HEU235O, // 11
+  LEN236, LEN236O, // 13
+  HEN236, HEN236O, // 15
+  LEP239, LEP239O, // 17
+  HEP239, HEP239O, // 19
+  LEP241, LEP241O, // 21
+  HEP241, HEP241O, // 23
+  MOX239, MOX241,  // 25
+  LEA242, LEA242O, // 27
+  HEA242, HEA242O, // 29
+  LECm243, LECm243O, // 31
+  HECm243, HECm243O, // 33
+  LECm245, LECm245O, // 35
+  HECm245, HECm245O, // 37
+  LECm247, LECm247O, // 39
+  HECm247, HECm247O, // 41
+  LEB248, LEB248O, // 43
+  HEB248, HEB248O, // 45
+  LECf249, LECf249O, // 47
+  HECf249, HECf249O, // 49
+  LECf251, LECf251O, // 51
+  HECf251, HECf251O, // 53
   FUEL_TYPE_MAX
 };
 
@@ -79,10 +81,18 @@ enum struct FuelType {
 
 typedef std::array<index_t, 3> coord_t;
 
+#define _XYZ(__x, __y, __z) (__x * (_y * _z) + __y * (_z) + __z)
+#define UNPACK(vec) (vec)[0], (vec)[1], (vec)[2]
+#define TO_XYZ(n) (n) / (_y * _z), ((n) % (_y * _z)) / _z, (n) % _z
+
 class Reactor {
 public:
   Reactor(index_t x = 1, index_t y = 1, index_t z = 1);
   ~Reactor();
+
+  static Reactor * fromJsonFile(std::string fn);
+
+  void toJsonFile(std::string fn);
 
   /** Total power generated for fuel type.
     *
@@ -130,6 +140,10 @@ public:
     _coolerTypes[x * (_y * _z) + y * (_z) + z] = bt == BlockType::cooler ? ct : CoolerType::air;
   }
 
+  inline bool isInBounds(index_t x, index_t y, index_t z)
+  {
+    return !(x < 0 || y < 0 || z < 0 || x >= _x || y >= _y || z >= _z);
+  }
 
   inline BlockType blockTypeAt(index_t x, index_t y, index_t z) {
     if (x < 0 || y < 0 || z < 0 || x >= _x || y >= _y || z >= _z) {
@@ -200,6 +214,9 @@ public:
    */
   smallcount_t activeCoolersAdjacentTo(index_t x, index_t y, index_t z, CoolerType ct = CoolerType::air);
 
+  std::set<coord_t> suggestPrincipledLocations();
+  std::vector<std::tuple<BlockType, CoolerType, float> > suggestedBlocksAt(index_t x, index_t y, index_t z, FuelType ft);
+
   inline bool operator==(const Reactor &b) const {
     return  _x == b._x && _y == b._y && _z == b._z
         &&  _blocks == b._blocks && _coolerTypes == b._coolerTypes;
@@ -219,6 +236,10 @@ public:
     return types.size();
   }
 
+  inline std::set<CoolerType> coolerTypes() const {
+    return std::set<CoolerType>(_coolerTypes.begin(), _coolerTypes.end());
+  }
+
   std::string describe();
 
   friend struct std::hash<Reactor>;
@@ -235,12 +256,20 @@ private:
   index_t _y;
   index_t _z;
 
+  std::vector<int> offsets;
+
   std::vector<BlockType> _blocks;
   std::vector<CoolerType> _coolerTypes;
 
   std::map<FuelType, float> _powerGeneratedCache;
   std::map<FuelType, float> _heatGeneratedCache;
   std::vector<int> _cellActiveCache;
+  std::vector<int> _cellModeratorAdjacencyCache;
+
+  std::vector<int> _reactorCellCache;
+  std::vector<int> _moderatorCache;
+  std::vector<int> _coolerCache;
+
 
   largecount_t _inactiveBlocks;
 

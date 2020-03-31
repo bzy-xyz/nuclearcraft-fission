@@ -1,7 +1,7 @@
 CC = g++
 
-CCFLAGS = -Wall -g --std=c++17 -fopenmp -D_GLIBCXX_PARALLEL -O3
-LDFLAGS = -lm
+CCFLAGS = -Wall -g --std=c++2a -fopenmp -O3 -I src
+LDFLAGS = 
 
 .PHONY: all clean
 
@@ -20,7 +20,7 @@ $(BIN) : bin/$(BIN)
 
 bin/$(BIN): $(OBJECTS)
 	mkdir -p $(@D)
-	$(CC) $(CCFLAGS) $^ -o $@
+	$(CC) $(CCFLAGS) $^ -o $@ $(LDFLAGS)
 
 -include $(DEPS)
 
