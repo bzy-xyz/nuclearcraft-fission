@@ -375,6 +375,7 @@ int main(int argc, char ** argv)
   unsigned int num_threads = omp_get_num_procs() / 2;
 
   fprintf(stderr, "running %d parallel searches\n", num_threads);
+  omp_set_num_threads(num_threads);
 
   std::vector<Reactor> reactors;
   for(int i = 0; i < num_threads; i++)
