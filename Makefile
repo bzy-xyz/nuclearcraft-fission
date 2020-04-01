@@ -1,6 +1,6 @@
 CC = g++
 
-CCFLAGS = -Wall -g --std=c++17 -fopenmp -D_GLIBCXX_PARALLEL -O3 -I 3rdparty/Eigen
+CCFLAGS = -Wall -g --std=c++17 -fopenmp -O3 -I 3rdparty/Eigen
 LDFLAGS = -lm
 
 .PHONY: all clean

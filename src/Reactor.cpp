@@ -1165,19 +1165,19 @@ Reactor::suggestedBlocksAt(index_t x, index_t y, index_t z, PrincipledSearchMode
     if (blockTypeAt(x, y, z) == BlockType::reactorCell)
     {
       if(neutronSourceTypeAt(x, y, z) != NeutronSourceType::ra_be && _hasLineOfSightToOutside(x, y, z))
-        ret.insert(std::make_tuple(BlockType::moderator, CoolerType::air, ModeratorType::air, NeutronSourceType::ra_be, ReflectorType::air, 0.2));
+        ret.insert(std::make_tuple(BlockType::reactorCell, CoolerType::air, ModeratorType::air, NeutronSourceType::ra_be, ReflectorType::air, 0.2));
       if(neutronSourceTypeAt(x, y, z) != NeutronSourceType::po_be && _hasLineOfSightToOutside(x, y, z))
-        ret.insert(std::make_tuple(BlockType::moderator, CoolerType::air, ModeratorType::air, NeutronSourceType::po_be, ReflectorType::air, 0.2));
+        ret.insert(std::make_tuple(BlockType::reactorCell, CoolerType::air, ModeratorType::air, NeutronSourceType::po_be, ReflectorType::air, 0.2));
       if(neutronSourceTypeAt(x, y, z) != NeutronSourceType::cf_252 && _hasLineOfSightToOutside(x, y, z))
-        ret.insert(std::make_tuple(BlockType::moderator, CoolerType::air, ModeratorType::air, NeutronSourceType::cf_252, ReflectorType::air, 0.2));
+        ret.insert(std::make_tuple(BlockType::reactorCell, CoolerType::air, ModeratorType::air, NeutronSourceType::cf_252, ReflectorType::air, 0.2));
     }
     // is this a reflector?
     if (blockTypeAt(x, y, z) == BlockType::reflector)
     {
       if(reflectorTypeAt(x, y, z) != ReflectorType::beryllium_carbon)
-        ret.insert(std::make_tuple(BlockType::moderator, CoolerType::air, ModeratorType::air, NeutronSourceType::unprimed, ReflectorType::beryllium_carbon, 0.2));
+        ret.insert(std::make_tuple(BlockType::reflector, CoolerType::air, ModeratorType::air, NeutronSourceType::unprimed, ReflectorType::beryllium_carbon, 0.2));
       if(reflectorTypeAt(x, y, z) != ReflectorType::lead_steel)
-        ret.insert(std::make_tuple(BlockType::moderator, CoolerType::air, ModeratorType::air, NeutronSourceType::unprimed, ReflectorType::lead_steel, 0.2));
+        ret.insert(std::make_tuple(BlockType::reflector, CoolerType::air, ModeratorType::air, NeutronSourceType::unprimed, ReflectorType::lead_steel, 0.2));
     }
   }
   if (m == PrincipledSearchMode::computeCooling || m == PrincipledSearchMode::hybrid)

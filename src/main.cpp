@@ -15,6 +15,8 @@
 
 #include <signal.h>
 
+#include <omp.h>
+
 #include "Reactor.h"
 
 #define DIM_X 5
@@ -99,7 +101,7 @@ float objective_fn_output_stage1(Reactor & r, FuelType optimizeFuel)
   //         * (pow(0.95, abs(r.heatBalance() / 60 - r.numEmptyBlocks())))
   //         / (1 + r.numTrappedCells() * 10 /* + r.numValidClusters() */ /* + r.inactiveBlocks() * r.inactiveBlocks() */ /* + std::max(r.numCoolerTypes() - 6, 0) */ /*+ (r.isSelfSustaining() ? r.numPrimedCells() * 2 : 0)*/);
   return 1 + (r.totalCells() * 1 + r.averageEfficiencyForFuel(optimizeFuel) * 2000 + r.sandwichedModerators() * 100 + r.numModerators() * 10)
-         * (pow(0.8, abs(r.heatBalance() / 40 - r.numEmptyBlocks())))
+         //* (pow(0.8, abs(r.heatBalance() / 40 - r.numEmptyBlocks())))
          / (0.1 + r.numTrappedCells() * r.numTrappedCells() * 50 + std::max((long)0, r.totalCells() - 3));
 }
 
@@ -209,7 +211,7 @@ void step_rnd(Reactor & r, int idx, FuelType f, decltype(OBJECTIVE_FN) objective
 
     if(principledActions.size())
     {
-      #pragma omp parallel for
+    // #pragma omp parallel for
       for(int m = 0; m < 200; m++)
       {
         Reactor r1 = r;
@@ -237,13 +239,13 @@ void step_rnd(Reactor & r, int idx, FuelType f, decltype(OBJECTIVE_FN) objective
           }
         }
         double score = std::max(pow(objective_fn(r1, f), 1. + (float)(idx % 10000) / 5000), 0.01);
-        #pragma omp critical
-        {
-          if(!tabuSet.count(r1) || m == 0) {
+        // #pragma omp critical
+        // {
+          // if(!tabuSet.count(r1) || m == 0) {
             steps.push_back(r1);
             step_weights.push_back(score * s);
-          }
-        }
+          // }
+        // }
       }
     }
   }
@@ -267,43 +269,43 @@ void step_rnd(Reactor & r, int idx, FuelType f, decltype(OBJECTIVE_FN) objective
         z = std::uniform_int_distribution<int>(0, r.z() - 1)(generator);
         i = std::uniform_int_distribution<int>(0, shortBlockDefs->size() - 1)(generator);
         r1.setCell(x, y, z, std::get<BlockType>((*shortBlockDefs)[i]), std::get<CoolerType>((*shortBlockDefs)[i]), std::get<ModeratorType>((*shortBlockDefs)[i]), std::get<NeutronSourceType>((*shortBlockDefs)[i]), std::get<ReflectorType>((*shortBlockDefs)[i]));
-        // if(r.x() > 2 && r.y() > 2 && r.z() > 2 && idx < 1000) {
-        //   r1.setCell(r.x() - 1 - x, y, z, std::get<BlockType>((*shortBlockDefs)[i]), std::get<CoolerType>((*shortBlockDefs)[i]), std::get<ModeratorType>((*shortBlockDefs)[i]), std::get<NeutronSourceType>((*shortBlockDefs)[i]), std::get<ReflectorType>((*shortBlockDefs)[i]));
-        //   if(r.x() > 2 && r.y() > 2 && r.z() > 2 && idx < 500) {
-        //     r1.setCell(x, y, r.z() - 1 - z, std::get<BlockType>((*shortBlockDefs)[i]), std::get<CoolerType>((*shortBlockDefs)[i]), std::get<ModeratorType>((*shortBlockDefs)[i]), std::get<NeutronSourceType>((*shortBlockDefs)[i]), std::get<ReflectorType>((*shortBlockDefs)[i]));
-        //     r1.setCell(r.x() - 1 - x, y, r.z() - 1 - z, std::get<BlockType>((*shortBlockDefs)[i]), std::get<CoolerType>((*shortBlockDefs)[i]), std::get<ModeratorType>((*shortBlockDefs)[i]), std::get<NeutronSourceType>((*shortBlockDefs)[i]), std::get<ReflectorType>((*shortBlockDefs)[i]));
-        //     if(r.x() > 2 && r.y() > 2 && r.z() > 2 && idx < 200) {
-        //       r1.setCell(x, r.y() - 1 - y, z, std::get<BlockType>((*shortBlockDefs)[i]), std::get<CoolerType>((*shortBlockDefs)[i]), std::get<ModeratorType>((*shortBlockDefs)[i]), std::get<NeutronSourceType>((*shortBlockDefs)[i]), std::get<ReflectorType>((*shortBlockDefs)[i]));
-        //       r1.setCell(r.x() - 1 - x, r.y() - 1 - y, z, std::get<BlockType>((*shortBlockDefs)[i]), std::get<CoolerType>((*shortBlockDefs)[i]), std::get<ModeratorType>((*shortBlockDefs)[i]), std::get<NeutronSourceType>((*shortBlockDefs)[i]), std::get<ReflectorType>((*shortBlockDefs)[i]));
-        //       r1.setCell(x, r.y() - 1 - y, r.z() - 1 - z, std::get<BlockType>((*shortBlockDefs)[i]), std::get<CoolerType>((*shortBlockDefs)[i]), std::get<ModeratorType>((*shortBlockDefs)[i]), std::get<NeutronSourceType>((*shortBlockDefs)[i]), std::get<ReflectorType>((*shortBlockDefs)[i]));
-        //       r1.setCell(r.x() - 1 - x, r.y() - 1 - y, r.z() - 1 - z, std::get<BlockType>((*shortBlockDefs)[i]), std::get<CoolerType>((*shortBlockDefs)[i]), std::get<ModeratorType>((*shortBlockDefs)[i]), std::get<NeutronSourceType>((*shortBlockDefs)[i]), std::get<ReflectorType>((*shortBlockDefs)[i]));
-        //     }
-        //   }
-        // }
+        if(r.x() > 2 && r.y() > 2 && r.z() > 2 && idx < 1000) {
+          r1.setCell(r.x() - 1 - x, y, z, std::get<BlockType>((*shortBlockDefs)[i]), std::get<CoolerType>((*shortBlockDefs)[i]), std::get<ModeratorType>((*shortBlockDefs)[i]), std::get<NeutronSourceType>((*shortBlockDefs)[i]), std::get<ReflectorType>((*shortBlockDefs)[i]));
+          if(r.x() > 2 && r.y() > 2 && r.z() > 2 && idx < 500) {
+            r1.setCell(x, y, r.z() - 1 - z, std::get<BlockType>((*shortBlockDefs)[i]), std::get<CoolerType>((*shortBlockDefs)[i]), std::get<ModeratorType>((*shortBlockDefs)[i]), std::get<NeutronSourceType>((*shortBlockDefs)[i]), std::get<ReflectorType>((*shortBlockDefs)[i]));
+            r1.setCell(r.x() - 1 - x, y, r.z() - 1 - z, std::get<BlockType>((*shortBlockDefs)[i]), std::get<CoolerType>((*shortBlockDefs)[i]), std::get<ModeratorType>((*shortBlockDefs)[i]), std::get<NeutronSourceType>((*shortBlockDefs)[i]), std::get<ReflectorType>((*shortBlockDefs)[i]));
+            if(r.x() > 2 && r.y() > 2 && r.z() > 2 && idx < 200) {
+              r1.setCell(x, r.y() - 1 - y, z, std::get<BlockType>((*shortBlockDefs)[i]), std::get<CoolerType>((*shortBlockDefs)[i]), std::get<ModeratorType>((*shortBlockDefs)[i]), std::get<NeutronSourceType>((*shortBlockDefs)[i]), std::get<ReflectorType>((*shortBlockDefs)[i]));
+              r1.setCell(r.x() - 1 - x, r.y() - 1 - y, z, std::get<BlockType>((*shortBlockDefs)[i]), std::get<CoolerType>((*shortBlockDefs)[i]), std::get<ModeratorType>((*shortBlockDefs)[i]), std::get<NeutronSourceType>((*shortBlockDefs)[i]), std::get<ReflectorType>((*shortBlockDefs)[i]));
+              r1.setCell(x, r.y() - 1 - y, r.z() - 1 - z, std::get<BlockType>((*shortBlockDefs)[i]), std::get<CoolerType>((*shortBlockDefs)[i]), std::get<ModeratorType>((*shortBlockDefs)[i]), std::get<NeutronSourceType>((*shortBlockDefs)[i]), std::get<ReflectorType>((*shortBlockDefs)[i]));
+              r1.setCell(r.x() - 1 - x, r.y() - 1 - y, r.z() - 1 - z, std::get<BlockType>((*shortBlockDefs)[i]), std::get<CoolerType>((*shortBlockDefs)[i]), std::get<ModeratorType>((*shortBlockDefs)[i]), std::get<NeutronSourceType>((*shortBlockDefs)[i]), std::get<ReflectorType>((*shortBlockDefs)[i]));
+            }
+          }
+        }
       }
 
       double score = std::max(pow(objective_fn(r1, f) / (1 + r.centerDist(x, y, z) / std::max(std::max(r.x(), r.y()), r.z())), 1. + (float)(idx % 10000) / 5000), 0.01);
-      #pragma omp critical
-      {
-        if(!tabuSet.count(r1) || m == 0) {
+      // #pragma omp critical
+      // {
+      //   if(!tabuSet.count(r1) || m == 0) {
           steps.push_back(r1);
           step_weights.push_back(score);
-        }
-      }
+      //   }
+      // }
     }
   }
   int ret_idx = std::discrete_distribution<int>(step_weights.begin(), step_weights.end())(generator);
   r = steps[ret_idx];
 
-  tabuSet.insert(r);
-  tabuList.push_back(r);
+  // tabuSet.insert(r);
+  // tabuList.push_back(r);
 
-  if(tabuList.size() > 10000)
-  {
-    Reactor z = tabuList.front();
-    tabuList.pop_front();
-    tabuSet.erase(z);
-  }
+  // if(tabuList.size() > 10000)
+  // {
+  //   Reactor z = tabuList.front();
+  //   tabuList.pop_front();
+  //   tabuSet.erase(z);
+  // }
 }
 
 #define step step_rnd
@@ -359,6 +361,29 @@ int main(int argc, char ** argv)
 
   Reactor best_r = r;
 
+  unsigned int num_threads = omp_get_num_procs() / 2;
+
+  fprintf(stderr, "running %d parallel searches\n", num_threads);
+  omp_set_num_threads(num_threads);
+
+  std::vector<Reactor> reactors;
+  for(int i = 0; i < num_threads; i++)
+  {
+    Reactor r1(x, y, z);
+    for(int _x = 0; _x < x; _x++)
+    {
+      for(int _y = 0; _y < y; _y++)
+      {
+        for(int _z = 0; _z < z; _z++)
+        {
+          // int i = std::uniform_int_distribution<int>(0, shortCoolerTypes->size() - 1)(generator);
+          r.setCell(_x, _y, _z, BlockType::conductor, CoolerType::air, ModeratorType::air, NeutronSourceType::unprimed, ReflectorType::air);
+        }
+      }
+    }
+    reactors.push_back(r1);
+  }
+
   int switchThresh = std::max(r.x() * 20 + r.y() * 20 + r.z() * 20, 50);
 
   for(int i = 0; i < 20000; i++)
@@ -375,36 +400,41 @@ int main(int argc, char ** argv)
       fprintf(stderr, "\r");
       fprintf(stderr, "step %u %f %u %f %f %f %f %d %f", i, objective_fn(r, optimizeFuel), best_r.totalCells(), best_r.effectivePowerGenerated(optimizeFuel), best_r.effectivePowerGenerated(optimizeFuel) / std::max(best_r.totalCells(), (int_fast32_t)1), best_r.dutyCycle(optimizeFuel), best_r.heatBalance(), best_r.numEmptyBlocks(), best_r.emptyReactorInefficiencyFactor());
     }
-    step(r, i, optimizeFuel, objective_fn);
-    if(keep_fn(r, optimizeFuel) > keep_fn(best_r  , optimizeFuel))
-    {
-      best_r = r;
+    #pragma omp parallel for
+    for(int j = 0; j < num_threads; j++) {
+      step(reactors[j], i, optimizeFuel, objective_fn);
     }
-    if(!(i % 50) || (i < switchThresh && !(i % 200))) {
-      r = best_r;
-      r.pruneInactives(true);
-      r.floodFillWithConductors();
-      objective_fn(r, optimizeFuel);
-    }
-    if(i == switchThresh)
-    {
-      r = best_r;
-      r.pruneInactives(true);
-      r.pruneInactives(true);
-      objective_fn = objective_fn_output_stage2;
-      objective_fn(r, optimizeFuel);
-    }
+    for(int j = 0; j < num_threads; j++) {
+      if(keep_fn(reactors[j], optimizeFuel) > keep_fn(best_r  , optimizeFuel))
+      {
+        best_r = reactors[j];
+      }
+      if(!(i % 50) || (i < switchThresh && !(i % 200))) {
+        reactors[j] = best_r;
+        // reactors[j].pruneInactives(true);
+        reactors[j].floodFillWithConductors();
+        objective_fn(reactors[j], optimizeFuel);
+      }
+      if(i == switchThresh)
+      {
+        reactors[j] = best_r;
+        // reactors[j].pruneInactives(true);
+        // reactors[j].pruneInactives(true);
+        objective_fn = objective_fn_output_stage2;
+        objective_fn(reactors[j], optimizeFuel);
+      }
 
-    if(!(i % 4000) && best_r.effectivePowerGenerated(optimizeFuel) <= 0)
-    {
-      r = best_r;
-      r.clearInfeasibleClusters();
-      objective_fn(r, optimizeFuel);
-      r.pruneInactives(true);
-      r.pruneInactives(true);
-      r.floodFillWithConductors();
-      objective_fn(r, optimizeFuel);
-      best_r = r;
+      if(!(i % 2000) && best_r.effectivePowerGenerated(optimizeFuel) <= 0)
+      {
+        reactors[j] = best_r;
+        reactors[j].clearInfeasibleClusters();
+        objective_fn(reactors[j], optimizeFuel);
+        reactors[j].pruneInactives(true);
+        reactors[j].pruneInactives(true);
+        reactors[j].floodFillWithConductors();
+        objective_fn(reactors[j], optimizeFuel);
+        best_r = reactors[j];
+      }
     }
 
     // consider criteria for early stopping
